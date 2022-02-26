@@ -1,0 +1,28 @@
+{
+  "name": "kltn-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thomg102/KLTN-contracts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.2.0",
+    "@truffle/hdwallet-provider": "^1.4.1",
+    "truffle": "^5.4.10",
+    "truffle-plugin-verify": "^0.5.14"
+  },
+  "bugs": {
+    "url": "https://github.com/Thomg102/KLTN-contracts/issues"
+  },
+  "homepage": "https://github.com/Thomg102/KLTN-contracts#readme"
+}
