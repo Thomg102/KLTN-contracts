@@ -1,5 +1,8 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface IMissionContract {
     struct Mission {
@@ -9,8 +12,6 @@ interface IMissionContract {
         uint256 startTime;
         uint256 endTime;
         uint256 distanceConfirm;
-        address[] participants;
-        mapping(address => bool) participantToTrue;
     }
 
     enum Status {
@@ -20,24 +21,20 @@ interface IMissionContract {
     }
 
     event CreatedNewMission(uint256 indexed id);
-    event Confirm(address[] students, uint256 timestamp);
+    event Confirm(uint256 studentsAmount, uint256 timestamp);
 
     function setBasicForMission(
-        string calldata _urlMetadata,
+        uint256 _missionId,
+        string memory _urlMetadata,
         uint256 _award,
         uint256 _startTime,
-        uint256 _endTime
+        uint256 _endTime,
+        uint256 _distanceConfirm
     ) external;
 
-    function addStudentToMission(
-        address[] calldata _students,
-        uint256 _missionId
-    ) external;
+    function addStudentToMission(address[] memory _students) external;
 
-    function confirmCompletedAddress(
-        address[] calldata _student,
-        bool _isCompelted
-    ) external;
+    function confirmCompletedAddress(address[] memory _student) external;
 
     function distributeReward() external;
 
