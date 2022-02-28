@@ -22,6 +22,7 @@ interface IMissionContract {
 
     event CreatedNewMission(uint256 indexed id);
     event Confirm(uint256 studentsAmount, uint256 timestamp);
+    event Close(uint256 timestamp);
 
     function setBasicForMission(
         uint256 _missionId,

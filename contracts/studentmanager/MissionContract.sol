@@ -124,18 +124,20 @@ contract MissionContract is IMissionContract, Ownable {
                 }
             }
         } else {
-            // for (uint256 i = 0; i < amount; i++) {
-            //     uint256 balance = getTotalToken(UITToken);
-            //     if (participantToTrue) {
-            //         balance > award
-            //             ? IERC20(UITToken).safeTransfer(participants[i], award)
-            //             : IERC20(UITToken).safeTransfer(
-            //                 participants[i],
-            //                 balance
-            //             );
-            //     }
-            // }
+            for (uint256 i = 0; i < participants.length; i++) {
+                uint256 balance = getTotalToken(UITToken);
+                if (completedAddress[participants[i]]) {
+                    balance > award
+                        ? IERC20(UITToken).safeTransfer(participants[i], award)
+                        : IERC20(UITToken).safeTransfer(
+                            participants[i],
+                            balance
+                        );
+                }
+            }
         }
+
+        emit Close(block.timestamp);
     }
 
     function getTotalToken(address _token) public view returns (uint256) {
