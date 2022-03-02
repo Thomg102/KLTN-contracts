@@ -13,11 +13,12 @@ contract SubjectContract is ISubjectContract, Ownable {
 
     Student[] public student;
     mapping(address => uint256) addressToStudentIndex;
+    mapping(address => mapping(ScoreColumn => uint256)) score;
     uint256 public amount;
     uint256 private gapTimeToStart = 86400;
-    mapping(address => bool) public completedAddress;
+    // mapping(address => bool) public completedAddress;
 
-    mapping(Rate => uint256) public rate;
+    mapping(ScoreColumn => uint256) public rate;
     // ti le diem, giua ki, cuoi ki, qua trinh
 
     modifier onlyLock() {
@@ -61,17 +62,17 @@ contract SubjectContract is ISubjectContract, Ownable {
         );
     }
 
-    function setRate(
+    function setScoreColumn(
         uint256 QT,
         uint256 GK,
         uint256 TH,
         uint256 CK
     ) external override onlyOwner {
         require(QT + GK + TH + CK == 10000, "SC: rate invalid");
-        rate[Rate.QT] = QT;
-        rate[Rate.GK] = GK;
-        rate[Rate.TH] = TH;
-        rate[Rate.CK] = CK;
+        rate[ScoreColumn.QT] = QT;
+        rate[ScoreColumn.GK] = GK;
+        rate[ScoreColumn.TH] = TH;
+        rate[ScoreColumn.CK] = CK;
     }
 
     function start() external onlyOwner {
@@ -98,7 +99,11 @@ contract SubjectContract is ISubjectContract, Ownable {
         uint256 index = addressToStudentIndex[_student];
         require(!student[index].participantToTrue, "SC: register error");
         amount++;
-        student.push(Student(_student, 0, true));
+        Student memory st = Student({
+            studentAddress: _student,
+            participantToTrue: true
+        });
+        student.push(st);
         addressToStudentIndex[_student] = student.length - 1;
     }
 
@@ -109,39 +114,59 @@ contract SubjectContract is ISubjectContract, Ownable {
         student[index].participantToTrue = false;
     }
 
-    function confirmCompletedAddress(Student[] calldata _student)
-        external
-        override
-        onlyOpen
-    {
+    function confirmCompletedAddress(
+        address[] calldata _student,
+        uint256[] calldata _score,
+        ScoreColumn _column
+    ) external override onlyOpen {
         require(
             block.timestamp < subject.endTime + subject.distanceConfirm &&
                 block.timestamp > subject.endTime
         );
+        require(_student.length == _score.length);
         for (uint256 i = 0; i < _student.length; i++) {
-            uint256 index = addressToStudentIndex[_student[i].studentAddress];
+            uint256 index = addressToStudentIndex[_student[i]];
             require(student[index].participantToTrue, "SC: cancel error");
-            student[index].score = student[i].score;
+            require(_score[i] <= 10);
+            score[_student[i]][_column] = _score[i];
         }
         emit Confirm(_student.length, block.timestamp);
     }
 
-    // function distributeReward() external override {
-    //     //chia thuong  theo diem trung binh
-    //     address[] memory completedStudent;
-    //     uint256 award = missions.award / amount;
-    //     require(block.timestamp > missions.endTime + missions.distanceConfirm);
-    //     for (uint256 i = 0; i < participants.length; i++) {
-    //         uint256 balance = getTotalToken(UITToken);
-    //         if (participantToTrue[participants[i]]) {
-    //             balance > award
-    //                 ? IERC20(UITToken).safeTransfer(participants[i], award)
-    //                 : IERC20(UITToken).safeTransfer(participants[i], balance);
-    //         }
-    //     }
+    function distributeReward() external override {
+        address[] memory completedStudent;
+        require(block.timestamp > subject.endTime + subject.distanceConfirm);
+        uint256 index = 0;
+        for (uint256 i = 0; i < student.length; i++) {
+            require(student[i].participantToTrue, "SC: cancel error");
+            uint256 finalScore = getFinalScore(student[i].studentAddress);
+            if (finalScore > 8) {
+                completedStudent[index] = student[i].studentAddress;
+                index++;
+            }
+        }
+        uint256 award = subject.award / index;
+        for (uint256 i = 0; i < index; i++) {
+            uint256 balance = getTotalToken(UITToken);
+            balance > award
+                ? IERC20(UITToken).safeTransfer(completedStudent[i], award)
+                : IERC20(UITToken).safeTransfer(completedStudent[i], balance);
+        }
 
-    //     emit Close(block.timestamp);
-    // }
+        emit Close(block.timestamp);
+    }
+
+    function getFinalScore(address _student) public view returns (uint256) {
+        return
+            (score[_student][ScoreColumn.QT] *
+                rate[ScoreColumn.QT] +
+                score[_student][ScoreColumn.GK] *
+                rate[ScoreColumn.GK] +
+                score[_student][ScoreColumn.TH] *
+                rate[ScoreColumn.TH] +
+                score[_student][ScoreColumn.CK] *
+                rate[ScoreColumn.CK]) / 10000;
+    }
 
     function getTotalToken(address _token) public view returns (uint256) {
         return IERC20(_token).balanceOf(address(this));

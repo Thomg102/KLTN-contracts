@@ -17,7 +17,7 @@ interface ISubjectContract {
         address lecturer;
     }
 
-    enum Rate {
+    enum ScoreColumn {
         QT,
         GK,
         TH,
@@ -26,7 +26,6 @@ interface ISubjectContract {
 
     struct Student {
         address studentAddress;
-        uint8 score;
         bool participantToTrue;
     }
 
@@ -52,7 +51,7 @@ interface ISubjectContract {
         address _lecturer
     ) external;
 
-    function setRate(
+    function setScoreColumn(
         uint256 QT,
         uint256 GK,
         uint256 TH,
@@ -61,9 +60,13 @@ interface ISubjectContract {
 
     function addStudentToSubject(address[] memory _students) external;
 
-    function confirmCompletedAddress(Student[] memory _students) external;
+    function confirmCompletedAddress(
+        address[] calldata _student,
+        uint256[] calldata _score,
+        ScoreColumn _column
+    ) external;
 
-    // function distributeReward() external;
+    function distributeReward() external;
 
     function withdraw(address _tokenAddress, uint256 _amount) external;
 }

@@ -106,7 +106,6 @@ contract MissionContract is IMissionContract, Ownable {
     }
 
     function distributeReward() external override {
-        address[] memory completedStudent;
         uint256 award = missions.award / amount;
         if (!isConfirmed) {
             require(
