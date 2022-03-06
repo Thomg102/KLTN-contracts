@@ -2,34 +2,15 @@
 
 pragma solidity >=0.8.0;
 
+import "./interfaces/IAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
-abstract contract AccessControl is Context {
-    struct RoleData {
-        mapping(address => bool) members;
-        bytes32 role;
-    }
+contract AccessControl is Context, IAccessControl {
     mapping(bytes32 => RoleData) private _roles;
 
     bytes32 internal ADMIN_ROLE = keccak256("ADMIN");
     bytes32 internal LECTURER_ROLE = keccak256("LECTURER");
     bytes32 internal STUDENT_ROLE = keccak256("STUDENT");
-
-    event RoleAdminChanged(
-        bytes32 indexed role,
-        bytes32 indexed previousAdminRole,
-        bytes32 indexed newAdminRole
-    );
-    event RoleGranted(
-        bytes32 indexed role,
-        address indexed account,
-        address indexed sender
-    );
-    event RoleRevoked(
-        bytes32 indexed role,
-        address indexed account,
-        address indexed sender
-    );
 
     constructor() {
         _roles[ADMIN_ROLE].members[_msgSender()] = true;
@@ -63,7 +44,6 @@ abstract contract AccessControl is Context {
 
     function grantRole(bytes32 role, address account)
         public
-        virtual
         onlyRoleExist(role)
         onlyRole(ADMIN_ROLE)
     {
@@ -81,23 +61,18 @@ abstract contract AccessControl is Context {
     {
         if (hasRole(role, account)) {
             _roles[role].members[account] = false;
-            emit RoleRevoked(role, account, _msgSender());
+            emit RoleRevoked(role, _msgSender());
         }
     }
 
-    function renounceRole(bytes32 role, address account)
+    function renounceRole(bytes32 role)
         public
-        virtual
+        override
         onlyRole(getRoleExist(role))
     {
-        require(
-            account == _msgSender(),
-            "AccessControl: can only renounce roles for self"
-        );
-
-        if (hasRole(role, account)) {
-            _roles[role].members[account] = false;
-            emit RoleRevoked(role, account, _msgSender());
+        if (hasRole(role, _msgSender())) {
+            _roles[role].members[_msgSender()] = false;
+            emit RoleRevoked(role, _msgSender());
         }
     }
 
