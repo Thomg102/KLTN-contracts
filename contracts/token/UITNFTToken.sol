@@ -69,12 +69,12 @@ contract UITNFTToken is ERC1155SupplyUpgradeable, OperatableUpgradeable, IUITNFT
         override
         onlyOperator
     {
+        idIndex.increment();
         uint id = idIndex.current();
         require(!nonce[id], "UITNFTToken: itemId must be unique");
         nftInfo[id] = _nftInfo;
         mint(id, _account, _amount);
         nonce[id] = true;
-        idIndex.increment();
     }
 
     function burn(uint _id, address _account, uint _amount) public override virtual {
@@ -104,5 +104,19 @@ contract UITNFTToken is ERC1155SupplyUpgradeable, OperatableUpgradeable, IUITNFT
         totalSupply -= totalBurnAmount;
 
         emit NFTBurnBatched(_ids, _account, _amounts);
+    }
+
+    function createNFT(NFTInfo memory _nftInfo)
+        external
+        override
+        onlyOperator
+    {
+        idIndex.increment();
+        uint id = idIndex.current();
+        require(!nonce[id], "UITNFTToken: itemId must be unique");
+        nftInfo[id] = _nftInfo;
+        nonce[id] = true;
+
+        emit NFTCreated(id, _nftInfo);
     }
 }
