@@ -5,8 +5,14 @@ import "../MissionContract.sol";
 import "../interfaces/IMissionFactory.sol";
 
 contract MissionFactory is IMissionFactory {
-    function createNewMission() public override returns (address) {
-        MissionContract missionContract = new MissionContract();
+    function createNewMission(
+        address _accessControll,
+        address _rewardDistributor
+    ) public override returns (address) {
+        MissionContract missionContract = new MissionContract(
+            _accessControll,
+            _rewardDistributor
+        );
         return address(missionContract);
     }
 }
