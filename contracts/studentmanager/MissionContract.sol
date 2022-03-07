@@ -3,20 +3,22 @@ pragma solidity >=0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IMissionContract.sol";
+import "./interfaces/IAccessControl.sol";
+import "./interfaces/IRewardDistributor.sol";
 
 contract MissionContract is IMissionContract, Ownable {
     using SafeERC20 for IERC20;
-    Mission public missions;
+    Mission public mission;
     Status public status = Status.Lock;
 
     address public UITToken;
+    IAccessControl public accessControll;
+    IRewardDistributor public rewardDistributor;
 
     address[] private participants;
     uint256 public amount;
     mapping(address => bool) public participantToTrue;
-    uint256 private gapTimeToStart = 86400;
-    mapping(address => bool) public completedAddress;
-    bool public isConfirmed;
+    mapping(address => bool) private completedAddress;
 
     modifier onlyLock() {
         require(status == Status.Lock, "MC: Only Lock");
@@ -28,48 +30,81 @@ contract MissionContract is IMissionContract, Ownable {
         _;
     }
 
+    modifier onlyRoleLecturer() {
+        require(
+            accessControll.hasRole(keccak256("LECTURER"), msg.sender),
+            "MC: Only Lecturer"
+        );
+        _;
+    }
+
+    modifier onlyRoleStudent() {
+        require(
+            accessControll.hasRole(keccak256("STUDENT"), msg.sender),
+            "MC: Only Student"
+        );
+        _;
+    }
+
+    constructor(address _accessControll, address _rewardDistributor) {
+        accessControll = IAccessControl(_accessControll);
+        rewardDistributor = IRewardDistributor(_rewardDistributor);
+    }
+
     function setBasicForMission(
         uint256 _missionId,
         string memory _urlMetadata,
         uint256 _award,
+        uint256 _maxEntrant,
+        address _persionInCharge,
         uint256 _startTime,
+        uint256 _endTimeToRegister,
         uint256 _endTime,
-        uint256 _distanceConfirm
+        uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
         require(_award > 0, "MC: Award should greater than Zero");
         require(
-            _startTime < _endTime &&
-                block.timestamp + gapTimeToStart < _startTime,
+            block.timestamp < _startTime &&
+                _startTime < _endTimeToRegister &&
+                _endTimeToRegister < _endTime &&
+                _endTime < _endTimeToConfirm,
             "MC: Time is invalid"
         );
 
-        missions = Mission(
+        mission = Mission(
             _missionId,
             _urlMetadata,
             _award,
+            _maxEntrant,
+            _persionInCharge,
             _startTime,
+            _endTimeToRegister,
             _endTime,
-            _distanceConfirm
+            _endTimeToConfirm
         );
     }
 
-    function start() external onlyOwner {
+    function start() external override onlyOwner onlyLock {
         status = Status.Open;
     }
 
     function addStudentToMission(address[] calldata _students)
         external
         override
-        onlyOwner
+        onlyRoleLecturer
         onlyOpen
     {
-        amount += _students.length;
+        require(
+            msg.sender == mission.persionInCharge,
+            "MC: Only the person in charge"
+        );
         for (uint256 i = 0; i < _students.length; i++) {
             _register(_students[i]);
         }
+        require(amount <= mission.maxEntrant);
     }
 
-    function register() external onlyOpen {
+    function register() external onlyRoleStudent onlyOpen {
         _register(msg.sender);
     }
 
@@ -80,7 +115,7 @@ contract MissionContract is IMissionContract, Ownable {
         participantToTrue[_student] = true;
     }
 
-    function cancelRegister() external onlyOpen {
+    function cancelRegister() external onlyRoleStudent onlyOpen {
         require(participantToTrue[msg.sender], "MS: cancel error");
         amount--;
         participantToTrue[msg.sender] = false;
@@ -89,60 +124,70 @@ contract MissionContract is IMissionContract, Ownable {
     function confirmCompletedAddress(address[] calldata _student)
         external
         override
+        onlyRoleLecturer
         onlyOpen
     {
         require(
-            block.timestamp < missions.endTime + missions.distanceConfirm &&
-                block.timestamp > missions.endTime
+            block.timestamp > mission.endTime &&
+                block.timestamp < mission.endTimeToConfirm
         );
-        require(!isConfirmed);
         for (uint256 i = 0; i < _student.length; i++) {
             require(participantToTrue[_student[i]], "MS: cancel error");
             completedAddress[_student[i]] = true;
         }
-        isConfirmed = true;
-        amount = _student.length;
         emit Confirm(_student.length, block.timestamp);
     }
 
-    function distributeReward() external override {
-        address[] memory completedStudent;
-        uint256 award = missions.award / amount;
-        if (!isConfirmed) {
-            require(
-                block.timestamp > missions.endTime + missions.distanceConfirm
-            );
-            for (uint256 i = 0; i < participants.length; i++) {
-                uint256 balance = getTotalToken(UITToken);
-                if (participantToTrue[participants[i]]) {
-                    balance > award
-                        ? IERC20(UITToken).safeTransfer(participants[i], award)
-                        : IERC20(UITToken).safeTransfer(
-                            participants[i],
-                            balance
-                        );
-                }
-            }
-        } else {
-            for (uint256 i = 0; i < participants.length; i++) {
-                uint256 balance = getTotalToken(UITToken);
-                if (completedAddress[participants[i]]) {
-                    balance > award
-                        ? IERC20(UITToken).safeTransfer(participants[i], award)
-                        : IERC20(UITToken).safeTransfer(
-                            participants[i],
-                            balance
-                        );
-                }
-            }
-        }
+    function unConfirmCompletedAddress(address _student)
+        external
+        override
+        onlyRoleLecturer
+        onlyOpen
+    {
+        require(
+            block.timestamp > mission.endTime &&
+                block.timestamp < mission.endTimeToConfirm
+        );
 
+        require(completedAddress[_student], "MS: cancel error");
+        completedAddress[_student] = false;
+        emit UnConfirm(_student, block.timestamp);
+    }
+
+    function close() external override onlyOwner {
+        status = Status.Close;
+        address[] memory student = getParticipantListCompleted();
+        for (uint256 i = 0; i < student.length; i++) {
+            rewardDistributor.distributeReward(student[i], mission.award);
+        }
         emit Close(block.timestamp);
     }
 
-    function getTotalToken(address _token) public view returns (uint256) {
-        return IERC20(_token).balanceOf(address(this));
+    function getParticipantList() public view returns (address[] memory) {
+        address[] memory student = new address[](amount);
+        uint256 index;
+        for (uint256 i = 0; i < participants.length; i++) {
+            if (participantToTrue[participants[i]]) {
+                student[index] = participants[i];
+                index++;
+            }
+        }
+        return student;
     }
 
-    function withdraw(address _tokenAddress, uint256 _amount) external {}
+    function getParticipantListCompleted()
+        public
+        view
+        returns (address[] memory)
+    {
+        address[] memory student = new address[](amount);
+        uint256 index;
+        for (uint256 i = 0; i < participants.length; i++) {
+            if (completedAddress[participants[i]]) {
+                student[index] = participants[i];
+                index++;
+            }
+        }
+        return student;
+    }
 }
