@@ -5,7 +5,6 @@ interface ISharedStruct {
     struct NFTInfo {
         string metadataInHash;
         string moreInfo;
-        bool isActive;
     }
 }
 

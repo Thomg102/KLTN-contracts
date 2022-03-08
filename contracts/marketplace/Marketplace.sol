@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IMarketplace.sol";
+import "../studentmanager/interfaces/IAccessControl.sol";
 import "../token/interfaces/IUITNFTToken.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -17,17 +18,28 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
     using SafeERC20 for IERC20;
     using Counters for Counters.Counter;
 
+    address public accessControl;
     address public immutable UITToken;
     address public immutable UITNFT;
+
+    bytes32 constant internal ADMIN_ROLE = keccak256("ADMIN");
+
+    modifier onlyAdmin() {
+        require(IAccessControl(accessControl).hasRole(ADMIN_ROLE, msg.sender), "Marketplace: Only admin can call this function");
+        _;
+    }
 
     mapping(uint => mapping(address => SaleInfo)) public itemsForSale;
 
     constructor(
+        address _accessControl,
         address _UITToken,
         address _UITNFT
     ) {
+        require(_accessControl != address(0), "Marketplace: Access control contract cannot be 0");
         require(_UITToken != address(0), "Marketplace: UITToken must not be address 0");
         require(_UITNFT != address(0), "Marketplace: UITNFToken must not be address 0");
+        accessControl = _accessControl;
         UITToken = _UITToken;
         UITNFT = _UITNFT;
     }
@@ -115,7 +127,7 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
         IERC20(UITToken).safeTransferFrom(buyer, _seller, price);
 
         // If seller is Admin, mint NFT to buyer
-        if (_seller == owner())
+        if (IAccessControl(accessControl).hasRole(ADMIN_ROLE, _seller))
             IUITNFTToken(UITNFT).mint(_itemId, buyer, _amount);
         else 
             IERC1155(UITNFT).safeTransferFrom(address(this), buyer, sale.itemId, sale.amount, "");
@@ -129,7 +141,7 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
      * @param _oneItemPrice price of one item want to sell
      * @param _amount amount of item want to sell
      */
-    function createAndListNFT(NFTInfo memory _nftInfo, uint _oneItemPrice, uint _amount) external override whenNotPaused nonReentrant {
+    function createAndListNFT(NFTInfo memory _nftInfo, uint _oneItemPrice, uint _amount) external override onlyAdmin whenNotPaused nonReentrant {
         require(_oneItemPrice > 0, "Marketplace: price must not be zero");
         require(_amount > 0, "Marketplace: amount must not be zero");
         IUITNFTToken(UITNFT).createNFT(_nftInfo);
@@ -154,7 +166,7 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
      * @param _itemId id of item want to buy
      * @param _amount amount of item want to sell
      */
-    function updateAmountNFT(uint _itemId, uint _amount) external override whenNotPaused nonReentrant {
+    function updateAmountNFT(uint _itemId, uint _amount) external override onlyAdmin whenNotPaused nonReentrant {
         SaleInfo storage sale = itemsForSale[_itemId][msg.sender];
         bool isSale = sale.isActive;
 
