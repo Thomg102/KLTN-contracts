@@ -24,11 +24,6 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
 
     bytes32 constant internal ADMIN_ROLE = keccak256("ADMIN");
 
-    modifier onlyAdmin() {
-        require(IAccessControl(accessControl).hasRole(ADMIN_ROLE, msg.sender), "Marketplace: Only admin can call this function");
-        _;
-    }
-
     mapping(uint => mapping(address => SaleInfo)) public itemsForSale;
 
     constructor(
@@ -42,6 +37,11 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
         accessControl = _accessControl;
         UITToken = _UITToken;
         UITNFT = _UITNFT;
+    }
+
+    modifier onlyAdmin() {
+        require(IAccessControl(accessControl).hasRole(ADMIN_ROLE, msg.sender), "Marketplace: Only admin can call this function");
+        _;
     }
 
     /** USER
@@ -178,6 +178,10 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
         sale.amount = _amount;
 
         emit AdminItemAmountUpdated(_itemId, _amount, msg.sender);
+    }
+
+    function setAccessControl(address _accessControl) external onlyOwner {
+        accessControl = _accessControl;
     }
 
     /**
