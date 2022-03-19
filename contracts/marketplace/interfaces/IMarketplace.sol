@@ -1,123 +1,85 @@
-//SPDX-License-Identifier: UNLICENSED
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IMarketPlace {
-    struct Product {
-        uint256 tokenId;
-        uint256 price;
-        bool listing;
-        bool selling;
-        address creator;
-        uint256 rate;
-        uint256 timestamp;
+import "../../common/interfaces/ISharedStruct.sol";
+
+interface IMarketplace is ISharedStruct {
+    struct SaleInfo {
+        bool isActive;
+        uint itemId;
+        uint amount;
+        uint saleTime;
+        uint oneItemPrice;
     }
 
-    struct Offer {
-        uint256 tokenId;
-        uint256 amount;
-        address token20;
-        address bargainer;
-        bool accepted;
-        uint256 timeout;
-    }
-
-    event Transfer(
-        uint256 indexed _tokenId,
-        address indexed _oldOwner,
-        address indexed _newOwner
+    event ItemListed(
+        uint indexed itemId,
+        uint amount,
+        uint oneItemPrice,
+        address ownerOfItem
     );
-    event NewOffer(
-        uint256 indexed _tokenId,
-        uint256 _amount,
-        address _token20,
-        address indexed _bargainer,
-        uint256 _timeout
+    event ItemDelisted(
+        uint indexed itemId,
+        uint amount,
+        address ownerOfItem
     );
-    event ApproveOffer(
-        uint256 indexed _tokenId,
-        address indexed _oldOwner,
-        address indexed _newOwner,
-        uint256 _index
+    event PriceUpdated(
+        uint indexed itemId,
+        uint _oneItemPrice,
+        address ownerOfItem
+    );
+    event ItemBought(
+        uint indexed itemId,
+        address buyer,
+        address seller,
+        uint amount,
+        uint price
+    );
+    event MarketFeeUpdated(uint newMarketFee);
+    event TokenValidUpdatedStatus(address token, bool status);
+    event AdminItemListed(
+        uint indexed itemId,
+        uint amount,
+        uint oneItemPrice,
+        address ownerOfItem
+    );
+    event AdminItemAmountUpdated(
+        uint indexed itemId,
+        uint amount,
+        address ownerOfItem
     );
 
     /**
-     * @dev Sets the contract address for creating NFT
+     * @notice List a item on sale.
      */
-    function setArtAddr(address _artAddr) external;
-
-    /**
-     * @dev Create product that will list on market place.
-     */
-    function createNewProduct(
-        string memory _hashInfo,
-        string memory _hashImg,
-        uint256 _price
+    function list(
+        uint _id,
+        uint _price,
+        uint _amount
     ) external;
 
     /**
-     * @dev Set a product if it listed on market place or not.
+     * @notice Delist item on sale.
      */
-    function setListOrNot(uint256 _tokenId) external;
+    function deList(uint _itemId) external;
 
     /**
-     * @dev Set a product if it sold or not.
+     * @notice Update price of one item on sale.
      */
-    function setSellOrNot(uint256 _tokenId) external;
+    function updatePrice(uint _itemId, uint _oneItemPrice) external;
 
     /**
-     * @dev Set price to product with its tokenId.
+     * @notice Instant buy a specific item on sale.
      */
-    function setPrice(uint256 _tokenId, uint256 _price) external;
+    function buy(uint _itemId, address _seller, uint _amount, uint _oneItemPrice) external;
 
     /**
-     * @dev Return the product list listing on market place
+     * @notice create and List NFT by Admin.
      */
-    function getProductListCreated(address _user)
-        external
-        view
-        returns (Product[] memory);
+    function createAndListNFT(NFTInfo memory _nftInfo, uint _oneItemPrice, uint _amount) external;
 
     /**
-     * @dev Moves `_tokenId` product from its owner to `sender` using the.
-     * `sender` pass a mount ETH, this will transfer to owner of `_tokenId`
+     * @notice Update amount to sell
      */
-    function buyWithETH(uint256 _tokenId) external payable;
-
-    function buyWithCurrency(uint256 _tokenId, string memory traransactionId)
-        external;
-
-    /**
-     * @dev Return the product list of `owner`
-     */
-    function getProducListOwnable(address _owner)
-        external
-        view
-        returns (Product[] memory);
-
-    /**
-     * @dev Create a offer to negotiate the product `_tokenId`
-     */
-    function offer(
-        uint256 _tokenId,
-        uint256 _amount,
-        address _token20,
-        uint256 _timeout
-    ) external;
-
-    /**
-     * @dev Restart time for offer timeout with `_tokenId`
-     */
-    function restartOffer(
-        uint256 _tokenId,
-        uint256 _index,
-        uint256 _timeout
-    ) external;
-
-    
-    function getOffer(uint256 _tokenId, uint256 _index)
-        external
-        view
-        returns (Offer memory);
-
-    function approveOffer(uint256 _tokenId, uint256 _index) external;
+    function updateAmountNFT(uint _itemId, uint _amount) external;
 }
