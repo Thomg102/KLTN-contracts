@@ -5,6 +5,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IMissionContract.sol";
 import "./interfaces/ISubjectContract.sol";
+import "./interfaces/IScholarshipContract.sol";
+import "./interfaces/ITuitionContract.sol";
+import "./interfaces/IGeneralContract.sol";
 import "./interfaces/IFactory.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
@@ -18,7 +21,9 @@ contract ManagerPool is Ownable {
     }
     enum Type {
         Mission,
-        Subject
+        Subject,
+        Scholarship,
+        Tuition
     }
 
     IFactory public factory;
@@ -28,6 +33,11 @@ contract ManagerPool is Ownable {
     mapping(address => bool) public existed;
     Counters.Counter public idCountMission;
     Counters.Counter public idCountSubject;
+    Counters.Counter public idCountScholarship;
+    Counters.Counter public idCountTuition;
+
+    mapping(address => string) public studentInfo;
+    mapping(address => string) public lecturerInfo;
 
     constructor(
         address _factory,
@@ -47,8 +57,27 @@ contract ManagerPool is Ownable {
         _;
     }
 
+    modifier onlyRoleStudent() {
+        require(
+            accessControll.hasRole(keccak256("STUDENT"), msg.sender),
+            "MC: Only Student"
+        );
+        _;
+    }
+
     function setFactory(address _factory) public onlyOwner {
         factory = IFactory(_factory);
+    }
+
+    function addStudentInfo(string memory hashInfo) public onlyRoleStudent {
+        studentInfo[msg.sender] = hashInfo;
+    }
+
+    function addLecturerInfo(address lecturerAddr, string memory hashInfo)
+        public
+        onlyRoleAdmin
+    {
+        lecturerInfo[lecturerAddr] = hashInfo;
     }
 
     function createNewMission(
@@ -114,12 +143,66 @@ contract ManagerPool is Ownable {
         );
         // ISubjectContract(subjectContract).setScoreColumn(qt, gk, th, ck);
         ISubjectContract(subjectContract).start();
-        rewardDistributor.addDistributorsAddress(subjectContract);
+        // rewardDistributor.addDistributorsAddress(subjectContract);
     }
 
-    function removeDistributor(address pool) public onlyRoleAdmin {
+    function createNewScholarship(
+        string memory _urlMetadata,
+        uint256 _award,
+        uint256 _startTime,
+        uint256 _endTime
+    ) external onlyRoleAdmin {
+        address scholarshipContract = factory.createNewScholarship(
+            address(accessControll),
+            address(rewardDistributor)
+        );
+        pools.push(Object(scholarshipContract, Type.Scholarship));
+        existed[scholarshipContract] = true;
+        uint256 _scholarshipId = idCountScholarship.current();
+        idCountScholarship.increment();
+        IScholarshipContract(scholarshipContract).setBasicForScholarship(
+            _scholarshipId,
+            _urlMetadata,
+            _award,
+            _startTime,
+            _endTime
+        );
+        IScholarshipContract(scholarshipContract).start();
+        rewardDistributor.addDistributorsAddress(scholarshipContract);
+    }
+
+    function createNewTuition(
+        string memory _urlMetadata,
+        uint256 _feeByToken,
+        uint256 _startTime,
+        uint256 _endTime
+    ) external onlyRoleAdmin {
+        address tuitionContract = factory.createNewTuition(
+            address(accessControll),
+            address(rewardDistributor)
+        );
+        pools.push(Object(tuitionContract, Type.Tuition));
+        existed[tuitionContract] = true;
+        uint256 _tuitionId = idCountTuition.current();
+        idCountTuition.increment();
+        ITuitionContract(tuitionContract).setBasicForTuition(
+            _tuitionId,
+            _urlMetadata,
+            _feeByToken,
+            _startTime,
+            _endTime
+        );
+        ITuitionContract(tuitionContract).start();
+        rewardDistributor.addDistributorsAddress(tuitionContract);
+    }
+
+    function close(address pool) external onlyRoleAdmin {
+        IGeneralContract(pool).close();
+        _removeDistributor(pool);
+    }
+
+    function _removeDistributor(address pool) private onlyRoleAdmin {
         require(existed[pool]);
-        //if status = Lose
         rewardDistributor.removeDistributorsAddress(pool);
     }
 }
