@@ -6,10 +6,12 @@ import "../interfaces/IScholarshipFactory.sol";
 
 contract ScholarshipFactory is IScholarshipFactory {
     function createNewScholarship(
+        address owner,
         address _accessControll,
         address _rewardDistributor
     ) public override returns (address) {
         ScholarshipContract scholarshipContract = new ScholarshipContract(
+            owner,
             _accessControll,
             _rewardDistributor
         );

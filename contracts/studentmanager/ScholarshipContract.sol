@@ -1,13 +1,13 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IScholarshipContract.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
 
-contract ScholarshipContract is IScholarshipContract, Ownable {
+contract ScholarshipContract is IScholarshipContract {
     using SafeERC20 for IERC20;
+    address public immutable owner;
     Scholarship public scholarship;
     Status public status = Status.Lock;
 
@@ -29,6 +29,11 @@ contract ScholarshipContract is IScholarshipContract, Ownable {
         _;
     }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only Owner");
+        _;
+    }
+
     modifier onlyRoleAdmin() {
         require(
             accessControll.hasRole(keccak256("ADMIN"), msg.sender),
@@ -45,7 +50,12 @@ contract ScholarshipContract is IScholarshipContract, Ownable {
         _;
     }
 
-    constructor(address _accessControll, address _rewardDistributor) {
+    constructor(
+        address _owner,
+        address _accessControll,
+        address _rewardDistributor
+    ) {
+        owner = _owner;
         accessControll = IAccessControl(_accessControll);
         rewardDistributor = IRewardDistributor(_rewardDistributor);
     }
@@ -114,8 +124,7 @@ contract ScholarshipContract is IScholarshipContract, Ownable {
         address[] memory student = new address[](participants.length);
         uint256 index;
         for (uint256 i = 0; i < participants.length; i++) {
-            if (participantToTrue[participants[i]]) {
-                require(participants[i] != address(0));
+            if (participantToTrue[participants[i]] && participants[i] != address(0)) {
                 student[index] = participants[i];
                 index++;
             }

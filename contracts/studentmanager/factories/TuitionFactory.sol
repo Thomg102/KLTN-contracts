@@ -6,10 +6,12 @@ import "../interfaces/ITuitionFactory.sol";
 
 contract TuitionFactory is ITuitionFactory {
     function createNewTuition(
+        address owner,
         address _accessControll,
         address _rewardDistributor
     ) public override returns (address) {
         TuitionContract tuitionContract = new TuitionContract(
+            owner,
             _accessControll,
             _rewardDistributor
         );

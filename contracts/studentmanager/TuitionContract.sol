@@ -1,12 +1,13 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity >= 0.8.0;
+pragma solidity >=0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ITuitionContract.sol";
 import "./interfaces/IAccessControl.sol";
 
-contract TuitionContract is ITuitionContract, Ownable {
+contract TuitionContract is ITuitionContract {
     using SafeERC20 for IERC20;
+
+    address public immutable owner;
     Tuition public tuition;
     Status public status = Status.Lock;
 
@@ -29,6 +30,11 @@ contract TuitionContract is ITuitionContract, Ownable {
         _;
     }
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only Owner");
+        _;
+    }
+
     modifier onlyRoleAdmin() {
         require(
             accessControll.hasRole(keccak256("ADMIN"), msg.sender),
@@ -45,7 +51,12 @@ contract TuitionContract is ITuitionContract, Ownable {
         _;
     }
 
-    constructor(address _accessControll, address _rewardDistributor) {
+    constructor(
+        address _owner,
+        address _accessControll,
+        address _rewardDistributor
+    ) {
+        owner = _owner;
         accessControll = IAccessControl(_accessControll);
         rewardDistributor = _rewardDistributor;
     }
@@ -89,6 +100,7 @@ contract TuitionContract is ITuitionContract, Ownable {
     }
 
     function removeStudentFromTuition(address _student) external onlyRoleAdmin {
+        if ()
         uint256 index = participantToIndex[_student];
         delete participants[index];
     }
@@ -104,7 +116,11 @@ contract TuitionContract is ITuitionContract, Ownable {
         emit Payment(msg.sender, block.timestamp, PaymentMethod.Token);
     }
 
-    function paymentByCurrency(address student) external override onlyRoleAdmin {
+    function paymentByCurrency(address student)
+        external
+        override
+        onlyRoleAdmin
+    {
         require(!participantToTrue[student], "TC: Student paid tuition");
         participantToTrue[msg.sender] = true;
         emit Payment(student, block.timestamp, PaymentMethod.Currency);
@@ -115,7 +131,7 @@ contract TuitionContract is ITuitionContract, Ownable {
         emit Close(block.timestamp);
     }
 
-    function getParticipantList() public view returns (address[] memory) {
+    function getParticipantList() public view override returns (address[] memory) {
         address[] memory student = new address[](participants.length);
         uint256 index;
         for (uint256 i = 0; i < participants.length; i++) {

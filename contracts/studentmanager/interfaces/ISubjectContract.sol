@@ -10,7 +10,6 @@ interface ISubjectContract {
         string urlMetadata;
         uint256 maxEntrant;
         address personInCharge;
-        uint256 award;
         uint256 startTime;
         uint256 endTimeToRegister;
         uint256 endTime;
@@ -43,7 +42,6 @@ interface ISubjectContract {
     function setBasicForSubject(
         uint256 _subjectId,
         string memory _urlMetadata,
-        uint256 _award,
         uint256 _maxEntrant,
         address _persionInCharge,
         uint256 _startTime,

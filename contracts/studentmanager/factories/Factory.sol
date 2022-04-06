@@ -45,45 +45,49 @@ contract Factory is Ownable, IFactory {
         return object[_object];
     }
 
-    function createNewMission(address accessControll, address rewardDistributor)
-        external
-        override
-        returns (address)
-    {
+    function createNewMission(
+        address owner,
+        address accessControll,
+        address rewardDistributor
+    ) external override returns (address) {
         return
             IMissionFactory(object[Object.Mission]).createNewMission(
+                owner,
                 accessControll,
                 rewardDistributor
             );
     }
 
-    function createNewSubject(address accessControll)
+    function createNewSubject(address owner, address accessControll)
         external
         override
         returns (address)
     {
         return
             ISubjectFactory(object[Object.Subject]).createNewMission(
+                owner,
                 accessControll
             );
     }
 
     function createNewScholarship(
+        address owner,
         address accessControll,
         address rewardDistributor
     ) external override returns (address) {
         return
             IScholarshipFactory(object[Object.Scholarship])
-                .createNewScholarship(accessControll, rewardDistributor);
+                .createNewScholarship(owner, accessControll, rewardDistributor);
     }
 
-    function createNewTuition(address accessControll, address rewardDistributor)
-        external
-        override
-        returns (address)
-    {
+    function createNewTuition(
+        address owner,
+        address accessControll,
+        address rewardDistributor
+    ) external override returns (address) {
         return
             ITuitionFactory(object[Object.Tuition]).createNewTuition(
+                owner,
                 accessControll,
                 rewardDistributor
             );

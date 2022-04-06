@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface ISubjectFactory {
-    function createNewMission(address _accessControll)
+    function createNewMission(address owner,address _accessControll)
         external
         returns (address);
 }

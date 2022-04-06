@@ -18,20 +18,25 @@ interface IFactory {
 
     function getObject(Object _object) external view returns (address);
 
-    function createNewMission(address accessControll, address rewardDistributor)
-        external
-        returns (address);
-
-    function createNewSubject(address accessControll)
-        external
-        returns (address);
-
-    function createNewScholarship(
+    function createNewMission(
+        address owner,
         address accessControll,
         address rewardDistributor
     ) external returns (address);
 
-    function createNewTuition(address accessControll, address rewardDistributor)
+    function createNewSubject(address owner, address accessControll)
         external
         returns (address);
+
+    function createNewScholarship(
+        address owner,
+        address accessControll,
+        address rewardDistributor
+    ) external returns (address);
+
+    function createNewTuition(
+        address _owner,
+        address accessControll,
+        address rewardDistributor
+    ) external returns (address);
 }

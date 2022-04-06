@@ -91,6 +91,7 @@ contract ManagerPool is Ownable {
         uint256 _endTimeToConfirm
     ) external onlyRoleAdmin {
         address missionContract = factory.createNewMission(
+            address(this),
             address(accessControll),
             address(rewardDistributor)
         );
@@ -115,7 +116,6 @@ contract ManagerPool is Ownable {
 
     function createNewSubject(
         string memory _urlMetadata,
-        uint256 _award,
         uint256 _maxEntrant,
         address _persionInCharge,
         uint256 _startTime,
@@ -124,6 +124,7 @@ contract ManagerPool is Ownable {
         uint256 _endTimeToConfirm
     ) external onlyRoleAdmin {
         address subjectContract = factory.createNewSubject(
+            address(this),
             address(accessControll)
         );
         pools.push(Object(subjectContract, Type.Subject));
@@ -133,7 +134,6 @@ contract ManagerPool is Ownable {
         ISubjectContract(subjectContract).setBasicForSubject(
             _subjectId,
             _urlMetadata,
-            _award,
             _maxEntrant,
             _persionInCharge,
             _startTime,
@@ -153,6 +153,7 @@ contract ManagerPool is Ownable {
         uint256 _endTime
     ) external onlyRoleAdmin {
         address scholarshipContract = factory.createNewScholarship(
+            address(this),
             address(accessControll),
             address(rewardDistributor)
         );
@@ -178,6 +179,7 @@ contract ManagerPool is Ownable {
         uint256 _endTime
     ) external onlyRoleAdmin {
         address tuitionContract = factory.createNewTuition(
+            address(this),
             address(accessControll),
             address(rewardDistributor)
         );

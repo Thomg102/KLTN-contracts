@@ -33,17 +33,19 @@ contract AccessControl is Context, IAccessControl {
         public
         view
         onlyRoleExist(role)
+        override
         returns (bool)
     {
         return _roles[role].members[account];
     }
 
-    function getRoleExist(bytes32 role) public view returns (bytes32) {
+    function getRoleExist(bytes32 role) public view override returns (bytes32) {
         return _roles[role].role;
     }
 
     function grantRole(bytes32 role, address account)
         public
+        override
         onlyRoleExist(role)
         onlyRole(ADMIN_ROLE)
     {
@@ -55,6 +57,7 @@ contract AccessControl is Context, IAccessControl {
 
     function revokeRole(bytes32 role, address account)
         public
+        override
         virtual
         onlyRoleExist(role)
         onlyRole(ADMIN_ROLE)
@@ -76,7 +79,7 @@ contract AccessControl is Context, IAccessControl {
         }
     }
 
-    function addNewRoleAdmin(bytes32 role) public virtual onlyRole(ADMIN_ROLE) {
+    function addNewRoleAdmin(bytes32 role) public override virtual onlyRole(ADMIN_ROLE) {
         require(getRoleExist(role) == bytes32(0));
         _roles[role].role = role;
         emit RoleAdminChanged(role, bytes32(0), role);
@@ -84,6 +87,7 @@ contract AccessControl is Context, IAccessControl {
 
     function removeNewRoleAdmin(bytes32 role)
         public
+        override
         virtual
         onlyRoleExist(role)
         onlyRole(ADMIN_ROLE)

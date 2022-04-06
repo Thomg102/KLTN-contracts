@@ -5,12 +5,15 @@ import "../SubjectContract.sol";
 import "../interfaces/ISubjectFactory.sol";
 
 contract SubjectFactory is ISubjectFactory {
-    function createNewMission(address accessControll)
+    function createNewMission(address owner, address accessControll)
         public
         override
         returns (address)
     {
-        SubjectContract subjectContract = new SubjectContract(accessControll);
+        SubjectContract subjectContract = new SubjectContract(
+            owner,
+            accessControll
+        );
         return address(subjectContract);
     }
 }

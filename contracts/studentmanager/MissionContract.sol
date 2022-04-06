@@ -1,24 +1,24 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IMissionContract.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
 
-contract MissionContract is IMissionContract, Ownable {
+contract MissionContract is IMissionContract {
     using SafeERC20 for IERC20;
+    address public immutable owner;
     Mission public mission;
     Status public status = Status.Lock;
 
-    address public UITToken;
     IAccessControl public accessControll;
     IRewardDistributor public rewardDistributor;
 
-    address[] private participants;
+    address[] public participants;
     uint256 public amount;
+    mapping(address=>bool) public addressIsExist;
     mapping(address => bool) public participantToTrue;
-    mapping(address => bool) private completedAddress;
+    mapping(address => bool) public completedAddress;
 
     modifier onlyLock() {
         require(status == Status.Lock, "MC: Only Lock");
@@ -27,6 +27,11 @@ contract MissionContract is IMissionContract, Ownable {
 
     modifier onlyOpen() {
         require(status == Status.Open, "MC: Only Open");
+        _;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
         _;
     }
 
@@ -46,7 +51,12 @@ contract MissionContract is IMissionContract, Ownable {
         _;
     }
 
-    constructor(address _accessControll, address _rewardDistributor) {
+    constructor(
+        address _owner,
+        address _accessControll,
+        address _rewardDistributor
+    ) {
+        owner = _owner;
         accessControll = IAccessControl(_accessControll);
         rewardDistributor = IRewardDistributor(_rewardDistributor);
     }
@@ -101,7 +111,6 @@ contract MissionContract is IMissionContract, Ownable {
         for (uint256 i = 0; i < _students.length; i++) {
             _register(_students[i]);
         }
-        require(amount <= mission.maxEntrant);
     }
 
     function register() external onlyRoleStudent onlyOpen {
@@ -109,10 +118,15 @@ contract MissionContract is IMissionContract, Ownable {
     }
 
     function _register(address _student) private {
+        require(block.timestamp <= mission.endTimeToRegister, "Expired time to register");
         require(!participantToTrue[_student], "MS: register error");
         amount++;
-        participants.push(_student);
+        if (!addressIsExist[_student]){
+            participants.push(_student);
+        }
+        addressIsExist[_student]=true;
         participantToTrue[_student] = true;
+        require(amount <= mission.maxEntrant);
     }
 
     function cancelRegister() external onlyRoleStudent onlyOpen {
@@ -155,9 +169,11 @@ contract MissionContract is IMissionContract, Ownable {
     }
 
     function close() external override onlyOwner {
+        require(block.timestamp > mission.endTimeToConfirm);
         status = Status.Close;
         address[] memory student = getParticipantListCompleted();
         for (uint256 i = 0; i < student.length; i++) {
+            if(student[i] !=address(0))
             rewardDistributor.distributeReward(student[i], mission.award);
         }
         emit Close(block.timestamp);
@@ -178,6 +194,7 @@ contract MissionContract is IMissionContract, Ownable {
     function getParticipantListCompleted()
         public
         view
+        override
         returns (address[] memory)
     {
         address[] memory student = new address[](amount);

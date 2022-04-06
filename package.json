@@ -1,28 +1,31 @@
 {
-  "name": "kltn-contracts",
-  "version": "1.0.0",
-  "description": "",
-  "main": "truffle-config.js",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Thomg102/KLTN-contracts.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.5.0",
-    "@openzeppelin/contracts-upgradeable": "^4.5.1",
-    "@truffle/hdwallet-provider": "^1.4.1",
-    "truffle-plugin-verify": "^0.5.14"
-  },
-  "bugs": {
-    "url": "https://github.com/Thomg102/KLTN-contracts/issues"
-  },
-  "homepage": "https://github.com/Thomg102/KLTN-contracts#readme"
+	"name": "kltn-contracts",
+	"version": "1.0.0",
+	"description": "",
+	"main": "truffle-config.js",
+	"directories": {
+		"test": "test"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"compile": "truffle compile",
+		"migrate": "truffle migrate --network binance_test --compile-none",
+		"verify": "truffle run verify --network binance_test UITToken UITNFTToken AccessControl ActiveNFT Marketplace Factory RewardDistributor ManagerPool"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Thomg102/KLTN-contracts.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@openzeppelin/contracts": "^4.5.0",
+		"@openzeppelin/contracts-upgradeable": "^4.5.1",
+		"@truffle/hdwallet-provider": "^1.4.1",
+		"truffle-plugin-verify": "^0.5.14"
+	},
+	"bugs": {
+		"url": "https://github.com/Thomg102/KLTN-contracts/issues"
+	},
+	"homepage": "https://github.com/Thomg102/KLTN-contracts#readme"
 }

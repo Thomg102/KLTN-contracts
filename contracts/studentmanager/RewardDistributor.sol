@@ -8,7 +8,7 @@ import "./interfaces/IRewardDistributor.sol";
 
 contract RewardDistributor is IRewardDistributor, Ownable {
     using SafeERC20 for IERC20;
-
+    
     IERC20 public immutable UITToken;
     mapping(address => bool) public distributors;
     address public managerPool;
@@ -16,6 +16,7 @@ contract RewardDistributor is IRewardDistributor, Ownable {
     constructor(IERC20 _UITToken, address _managerPool) {
         UITToken = _UITToken;
         managerPool = _managerPool;
+        distributors[msg.sender] = true;
     }
 
     modifier onlyDistributor() {
@@ -31,8 +32,14 @@ contract RewardDistributor is IRewardDistributor, Ownable {
         _;
     }
 
+    function setManagerPoolPermission(address _managerPool) external onlyOwner {
+        require(_managerPool != address(0));
+        managerPool = _managerPool;
+    }
+
     function addDistributorsAddress(address distributor)
         external
+        override
         onlyPermission
     {
         distributors[distributor] = true;
@@ -40,6 +47,7 @@ contract RewardDistributor is IRewardDistributor, Ownable {
 
     function removeDistributorsAddress(address distributor)
         external
+        override
         onlyPermission
     {
         distributors[distributor] = false;
@@ -52,4 +60,9 @@ contract RewardDistributor is IRewardDistributor, Ownable {
     {
         UITToken.safeTransfer(account, amount);
     }
+
+    function getTotalBalance() public view returns(uint256){
+        return IERC20(UITToken).balanceOf(address(this));
+    }
+
 }

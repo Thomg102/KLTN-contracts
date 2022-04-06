@@ -1,23 +1,23 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ISubjectContract.sol";
 import "./interfaces/IAccessControl.sol";
 
-contract SubjectContract is ISubjectContract, Ownable {
+contract SubjectContract is ISubjectContract {
     using SafeERC20 for IERC20;
+    address public immutable owner;
     Subject public subject;
     Status public status = Status.Lock;
 
     address public UITToken;
     IAccessControl public accessControll;
 
-    Student[] public student;
-    mapping(address => uint256) addressToStudentIndex;
+    address[] public student;
+    mapping(address => Student) public addressToStudent;
     // mapping(address => mapping(ScoreColumn => uint256)) score;
     uint256 public amount;
-    // mapping(address => bool) public completedAddress;
+    mapping(address => bool) public completedAddress;
 
     // mapping(ScoreColumn => uint256) public rate;
     // ti le diem, giua ki, cuoi ki, qua trinh
@@ -29,6 +29,11 @@ contract SubjectContract is ISubjectContract, Ownable {
 
     modifier onlyOpen() {
         require(status == Status.Open, "SC: Only Open");
+        _;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
         _;
     }
 
@@ -48,14 +53,14 @@ contract SubjectContract is ISubjectContract, Ownable {
         _;
     }
 
-    constructor(address _accessControll) {
+    constructor(address _owner, address _accessControll) {
+        owner = _owner;
         accessControll = IAccessControl(_accessControll);
     }
 
     function setBasicForSubject(
         uint256 _subjectId,
         string memory _urlMetadata,
-        uint256 _award,
         uint256 _maxEntrant,
         address _persionInCharge,
         uint256 _startTime,
@@ -63,7 +68,6 @@ contract SubjectContract is ISubjectContract, Ownable {
         uint256 _endTime,
         uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
-        require(_award > 0, "SC: Award should greater than Zero");
         require(
             block.timestamp < _startTime &&
                 _startTime < _endTimeToRegister &&
@@ -77,7 +81,6 @@ contract SubjectContract is ISubjectContract, Ownable {
             _urlMetadata,
             _maxEntrant,
             _persionInCharge,
-            _award,
             _startTime,
             _endTimeToRegister,
             _endTime,
@@ -115,7 +118,6 @@ contract SubjectContract is ISubjectContract, Ownable {
         for (uint256 i = 0; i < _students.length; i++) {
             _register(_students[i]);
         }
-        require(amount <= subject.maxEntrant);
     }
 
     function register() external onlyOpen onlyRoleStudent {
@@ -123,22 +125,29 @@ contract SubjectContract is ISubjectContract, Ownable {
     }
 
     function _register(address _student) private {
-        uint256 index = addressToStudentIndex[_student];
-        require(!student[index].participantToTrue, "SC: register error");
+        Student storage instance = addressToStudent[_student];
+        require(!instance.participantToTrue, "SC: register error");
+
         amount++;
-        Student memory st = Student({
-            studentAddress: _student,
-            participantToTrue: true
-        });
-        student.push(st);
-        addressToStudentIndex[_student] = student.length - 1;
+        if(instance.studentAddress != address(0)){
+            instance.participantToTrue = true;
+        }else{
+            Student memory st = Student({
+                studentAddress: _student,
+                participantToTrue: true
+            });
+            addressToStudent[_student] = st;
+            student.push(_student);
+        }
+        
+        require(amount <= subject.maxEntrant);
     }
 
     function cancelRegister() external onlyOpen onlyRoleStudent {
-        uint256 index = addressToStudentIndex[msg.sender];
-        require(student[index].participantToTrue, "SC: cancel error");
+        Student storage instance = addressToStudent[msg.sender];
+        require(instance.participantToTrue, "SC: cancel error");
         amount--;
-        student[index].participantToTrue = false;
+        instance.participantToTrue = false;
     }
 
     function confirmCompletedAddress(
@@ -150,8 +159,9 @@ contract SubjectContract is ISubjectContract, Ownable {
         );
         // require(_student.length == _score.length);
         for (uint256 i = 0; i < _student.length; i++) {
-            uint256 index = addressToStudentIndex[_student[i]];
-            require(student[index].participantToTrue, "SC: cancel error");
+            Student memory instance = addressToStudent[msg.sender];
+            require(instance.participantToTrue && instance.studentAddress == _student[i], "SC: cancel error");
+            completedAddress[_student[i]] = true;
             // require(_score[i] <= 10);
             // score[_student[i]][_column] = _score[i];
         }
@@ -161,6 +171,22 @@ contract SubjectContract is ISubjectContract, Ownable {
     function close() external override onlyOwner {
         status = Status.Close;
         emit Close(block.timestamp);
+    }
+
+    function getParticipantListCompleted()
+        public
+        view
+        returns (address[] memory)
+    {
+        address[] memory _student = new address[](amount);
+        uint256 index;
+        for (uint256 i = 0; i < student.length; i++) {
+            if (completedAddress[student[i]] && student[i]!=address(0)) {
+                _student[index] = student[i];
+                index++;
+            }
+        }
+        return _student;
     }
 
     // function getFinalScore(address _student) public view returns (uint256) {
