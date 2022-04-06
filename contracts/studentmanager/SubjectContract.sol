@@ -116,6 +116,7 @@ contract SubjectContract is ISubjectContract {
             "MC: Only the person in charge"
         );
         for (uint256 i = 0; i < _students.length; i++) {
+             require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
             _register(_students[i]);
         }
     }
@@ -159,7 +160,7 @@ contract SubjectContract is ISubjectContract {
         );
         // require(_student.length == _score.length);
         for (uint256 i = 0; i < _student.length; i++) {
-            Student memory instance = addressToStudent[msg.sender];
+            Student memory instance = addressToStudent[_student[i]];
             require(instance.participantToTrue && instance.studentAddress == _student[i], "SC: cancel error");
             completedAddress[_student[i]] = true;
             // require(_score[i] <= 10);
@@ -170,7 +171,20 @@ contract SubjectContract is ISubjectContract {
 
     function close() external override onlyOwner {
         status = Status.Close;
+        require(block.timestamp>subject.endTimeToConfirm);
         emit Close(block.timestamp);
+    }
+
+    function getParticipantList() public view returns (address[] memory) {
+        address[] memory _student = new address[](amount);
+        uint256 index;
+        for (uint256 i = 0; i < student.length; i++) {
+            if (addressToStudent[student[i]].participantToTrue && addressToStudent[student[i]].studentAddress !=address(0)) {
+                _student[index] = addressToStudent[student[i]].studentAddress;
+                index++;
+            }
+        }
+        return _student;
     }
 
     function getParticipantListCompleted()

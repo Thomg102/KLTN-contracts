@@ -41,7 +41,7 @@ contract Factory is Ownable, IFactory {
         object[Object.Tuition] = tuition;
     }
 
-    function getObject(Object _object) external view returns (address) {
+    function getObject(Object _object) external override view returns (address) {
         return object[_object];
     }
 

@@ -45,5 +45,5 @@ interface IScholarshipContract {
     function getParticipantList()
         external
         view
-        returns (address[] memory, uint256);
+        returns (address[] memory);
 }

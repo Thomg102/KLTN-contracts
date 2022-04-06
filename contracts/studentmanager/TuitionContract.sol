@@ -15,10 +15,11 @@ contract TuitionContract is ITuitionContract {
     IAccessControl public accessControll;
     address public rewardDistributor;
 
-    address[] private participants;
+    address[] public participants;
     uint256 public amount;
     mapping(address => uint256) public participantToIndex;
     mapping(address => bool) public participantToTrue;
+    mapping(address =>bool) public completedAddress;
 
     modifier onlyLock() {
         require(status == Status.Lock, "MC: Only Lock");
@@ -94,14 +95,20 @@ contract TuitionContract is ITuitionContract {
         onlyOpen
     {
         for (uint256 i = 0; i < _students.length; i++) {
+            require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
+            require(!participantToTrue[_students[i]], "Added");
             participants.push(_students[i]);
             participantToIndex[_students[i]] = participants.length - 1;
+            participantToTrue[_students[i]] = true;
+            amount++;
         }
     }
 
     function removeStudentFromTuition(address _student) external onlyRoleAdmin {
-        if ()
+        require(participantToTrue[_student], "Error when remove");
         uint256 index = participantToIndex[_student];
+        amount--;
+        participantToTrue[_student] = false;
         delete participants[index];
     }
 
@@ -112,7 +119,7 @@ contract TuitionContract is ITuitionContract {
             rewardDistributor,
             tuition.feeByToken
         );
-        participantToTrue[msg.sender] = true;
+        completedAddress[msg.sender] = true;
         emit Payment(msg.sender, block.timestamp, PaymentMethod.Token);
     }
 
@@ -122,7 +129,7 @@ contract TuitionContract is ITuitionContract {
         onlyRoleAdmin
     {
         require(!participantToTrue[student], "TC: Student paid tuition");
-        participantToTrue[msg.sender] = true;
+        completedAddress[msg.sender] = true;
         emit Payment(student, block.timestamp, PaymentMethod.Currency);
     }
 
@@ -132,11 +139,26 @@ contract TuitionContract is ITuitionContract {
     }
 
     function getParticipantList() public view override returns (address[] memory) {
-        address[] memory student = new address[](participants.length);
+        address[] memory student = new address[](amount);
         uint256 index;
         for (uint256 i = 0; i < participants.length; i++) {
-            if (participantToTrue[participants[i]]) {
-                require(participants[i] != address(0));
+            if (participantToTrue[participants[i]] && participants[i] != address(0)) {
+                student[index] = participants[i];
+                index++;
+            }
+        }
+        return student;
+    }
+
+    function getParticipantListCompleted()
+        public
+        view
+        returns (address[] memory)
+    {
+        address[] memory student = new address[](amount);
+        uint256 index;
+        for (uint256 i = 0; i < participants.length; i++) {
+            if (completedAddress[participants[i]]) {
                 student[index] = participants[i];
                 index++;
             }

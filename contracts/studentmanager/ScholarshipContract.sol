@@ -15,7 +15,8 @@ contract ScholarshipContract is IScholarshipContract {
     IAccessControl public accessControll;
     IRewardDistributor public rewardDistributor;
 
-    address[] private participants;
+    address[] public participants;
+    uint256 public amount;
     mapping(address => uint256) public participantToIndex;
     mapping(address => bool) public participantToTrue;
 
@@ -93,8 +94,12 @@ contract ScholarshipContract is IScholarshipContract {
         onlyOpen
     {
         for (uint256 i = 0; i < _students.length; i++) {
+            require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
+            require(!participantToTrue[_students[i]], "Added");
             participants.push(_students[i]);
             participantToIndex[_students[i]] = participants.length - 1;
+            participantToTrue[_students[i]] = true;
+            amount++;
         }
     }
 
@@ -102,13 +107,17 @@ contract ScholarshipContract is IScholarshipContract {
         external
         onlyRoleAdmin
     {
+        require(participantToTrue[_student], "Error when remove");
         uint256 index = participantToIndex[_student];
+        participantToTrue[_student] = false;
+        amount--;
         delete participants[index];
     }
 
     function close() external override onlyOwner {
+        require(block.timestamp > scholarship.endTime, "Not yet ready");
         status = Status.Close;
-        (address[] memory student, uint256 amount) = getParticipantList();
+        address[] memory student= getParticipantList();
         for (uint256 i = 0; i < amount; i++) {
             rewardDistributor.distributeReward(student[i], scholarship.award);
         }
@@ -119,7 +128,7 @@ contract ScholarshipContract is IScholarshipContract {
         public
         view
         override
-        returns (address[] memory, uint256)
+        returns (address[] memory)
     {
         address[] memory student = new address[](participants.length);
         uint256 index;
@@ -129,6 +138,6 @@ contract ScholarshipContract is IScholarshipContract {
                 index++;
             }
         }
-        return (student, index);
+        return student;
     }
 }

@@ -109,6 +109,7 @@ contract MissionContract is IMissionContract {
             "MC: Only the person in charge"
         );
         for (uint256 i = 0; i < _students.length; i++) {
+             require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
             _register(_students[i]);
         }
     }
