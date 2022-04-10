@@ -76,7 +76,7 @@ contract ActiveNFT is IActiveNFT, Pausable, Ownable, ReentrancyGuard, ERC1155Hol
      * @dev cancel request active NFT
      * @param _activeId itemId
      */
-    function CancelRequestActiveNFT(uint _activeId) external override whenNotPaused nonReentrant {
+    function cancelRequestActiveNFT(uint _activeId) external override whenNotPaused nonReentrant {
         ActiveInfo storage activeInfo = activeInfoList[_activeId];
         require(activeInfo.ownerOfRequest == msg.sender, "ActiveNFT: Not owner of request");
         require(activeInfo.isRequested, "ActiveNFT: activeInfo is not requested");
