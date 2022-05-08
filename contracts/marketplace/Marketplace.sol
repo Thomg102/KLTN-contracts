@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IMarketplace.sol";
+import "../activeNFT/interfaces/IActiveNFT.sol";
 import "../studentmanager/interfaces/IAccessControl.sol";
 import "../token/interfaces/IUITNFTToken.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -21,6 +22,8 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
     address public accessControl;
     address public immutable UITToken;
     address public immutable UITNFT;
+    address public immutable rewardDistributor;
+    IActiveNFT public activeNFT;
 
     bytes32 constant internal ADMIN_ROLE = keccak256("ADMIN");
 
@@ -29,14 +32,19 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
     constructor(
         address _accessControl,
         address _UITToken,
-        address _UITNFT
+        address _UITNFT,
+        address _rewardDistributor,
+        IActiveNFT _activeNFT
     ) {
         require(_accessControl != address(0), "Marketplace: Access control contract cannot be 0");
         require(_UITToken != address(0), "Marketplace: UITToken must not be address 0");
         require(_UITNFT != address(0), "Marketplace: UITNFToken must not be address 0");
+        require(_rewardDistributor != address(0), "Marketplace: RewardDistributor must not be address 0");
         accessControl = _accessControl;
         UITToken = _UITToken;
         UITNFT = _UITNFT;
+        rewardDistributor = _rewardDistributor;
+        activeNFT = _activeNFT;
     }
 
     modifier onlyAdmin() {
@@ -107,9 +115,8 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
      * @param _itemId id of item want to buy
      * @param _seller seller address
      * @param _amount amount of item want to buy
-     * @param _oneItemBuyPrice price of one item want to buy
      */
-    function buy(uint _itemId, address _seller, uint _amount, uint _oneItemBuyPrice) external override whenNotPaused nonReentrant {
+    function buy(uint _itemId, address _seller, uint _amount) external override whenNotPaused nonReentrant {
         SaleInfo storage sale = itemsForSale[_itemId][_seller];
         address buyer = msg.sender;
         uint oneItemPrice = sale.oneItemPrice;
@@ -117,7 +124,6 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
 
         require(sale.isActive, "Marketplace: Sale inactive or already sold");
         require(_amount <= sale.amount, "Marketplace: Not enough amount to sell");
-        require(_oneItemBuyPrice == oneItemPrice, "Marketplace: invalid trade price");
         require(buyer != _seller, "Marketplace: owner cannot buy");
 
         sale.amount -= _amount;
@@ -127,10 +133,14 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
         IERC20(UITToken).safeTransferFrom(buyer, _seller, price);
 
         // If seller is Admin, mint NFT to buyer
-        if (IAccessControl(accessControl).hasRole(ADMIN_ROLE, _seller))
+        if (IAccessControl(accessControl).hasRole(ADMIN_ROLE, _seller)) {
+            IERC20(UITToken).safeTransferFrom(buyer, rewardDistributor, price);
             IUITNFTToken(UITNFT).mint(_itemId, buyer, _amount);
-        else 
-            IERC1155(UITNFT).safeTransferFrom(address(this), buyer, sale.itemId, sale.amount, "");
+        }
+        else {
+            IERC20(UITToken).safeTransferFrom(buyer, _seller, price);
+            IERC1155(UITNFT).safeTransferFrom(address(this), buyer, sale.itemId, _amount, "");
+        }
         
         emit ItemBought(_itemId, buyer, _seller, _amount, price);
     }
@@ -180,8 +190,24 @@ contract Marketplace is IMarketplace, Pausable, Ownable, ReentrancyGuard, ERC115
         emit AdminItemAmountUpdated(_itemId, _amount, msg.sender);
     }
 
+    function requestActiveNFT(uint _itemId, uint _amount) external whenNotPaused nonReentrant {
+        activeNFT.requestActiveNFT(_itemId, _amount);
+    }
+
+    function cancelRequestActiveNFT(uint _activeId) external whenNotPaused nonReentrant {
+        activeNFT.cancelRequestActiveNFT(_activeId);
+    }
+
+    function activeNFTByAdmin(uint _activeId) external onlyAdmin whenNotPaused nonReentrant {
+        activeNFT.activeNFT(_activeId);
+    }
+
     function setAccessControl(address _accessControl) external onlyOwner {
         accessControl = _accessControl;
+    }
+
+    function setActiveNFT(IActiveNFT _activeNFT) external onlyOwner {
+        activeNFT = _activeNFT;
     }
 
     /**

@@ -71,7 +71,7 @@ interface IMarketplace is ISharedStruct {
     /**
      * @notice Instant buy a specific item on sale.
      */
-    function buy(uint _itemId, address _seller, uint _amount, uint _oneItemPrice) external;
+    function buy(uint _itemId, address _seller, uint _amount) external;
 
     /**
      * @notice create and List NFT by Admin.

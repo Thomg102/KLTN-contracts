@@ -20,6 +20,6 @@ interface IActiveNFT is ISharedStruct {
     event NFTActived(uint _activeId, uint _itemId, uint _amount, uint _activedTime, address _owner, bool _isCourseNFT);
 
     function requestActiveNFT(uint _itemId, uint _amount) external;
-    function CancelRequestActiveNFT(uint _activeId) external;
+    function cancelRequestActiveNFT(uint _activeId) external;
     function activeNFT(uint _activeId) external;
 }
