@@ -61,11 +61,17 @@ interface ISubjectContract {
 
     function addStudentToSubject(address[] memory _students) external;
 
+    function register() external;
+
+    function cancelRegister() external;
+
     function confirmCompletedAddress(
         address[] calldata _student
         // uint256[] calldata _score,
         // ScoreColumn _column
     ) external;
+
+    function unConfirmCompletedAddress(address _student) external;
 
     function close() external;
 }

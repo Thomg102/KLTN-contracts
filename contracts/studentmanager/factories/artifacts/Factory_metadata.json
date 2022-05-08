@@ -1,0 +1,367 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "mission",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "subject",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "scholarship",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "tuition",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "accessControll",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "rewardDistributor",
+						"type": "address"
+					}
+				],
+				"name": "createNewMission",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "accessControll",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "rewardDistributor",
+						"type": "address"
+					}
+				],
+				"name": "createNewScholarship",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "accessControll",
+						"type": "address"
+					}
+				],
+				"name": "createNewSubject",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "accessControll",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "rewardDistributor",
+						"type": "address"
+					}
+				],
+				"name": "createNewTuition",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "enum IFactory.Object",
+						"name": "_object",
+						"type": "uint8"
+					}
+				],
+				"name": "getObject",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "enum IFactory.Object",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"name": "object",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "mission",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "subject",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "scholarship",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "tuition",
+						"type": "address"
+					}
+				],
+				"name": "setObject",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/studentmanager/factories/Factory.sol": "Factory"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/access/Ownable.sol": {
+			"keccak256": "0x24e0364e503a9bbde94c715d26573a76f14cd2a202d45f96f52134ab806b67b9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e12cbaa7378fd9b62280e4e1d164bedcb4399ce238f5f98fc0eefb7e50577981",
+				"dweb:/ipfs/QmXRoFGUgfsaRkoPT5bxNMtSayKTQ8GZATLPXf69HcRA51"
+			]
+		},
+		"@openzeppelin/contracts/utils/Context.sol": {
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
+			]
+		},
+		"contracts/studentmanager/factories/Factory.sol": {
+			"keccak256": "0x394615a806c43ca8e57319850815c86e7681df0688adaf510aa28178d55bd16a",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://b2dc4b25e1317227d23fdc219861a708601b70777cc18effa86e76c3c1b5b022",
+				"dweb:/ipfs/Qmd19sjZehAwnu5AGLR5vTFPi1Sn5aTfxRPW9DDZhmETUb"
+			]
+		},
+		"contracts/studentmanager/interfaces/IFactory.sol": {
+			"keccak256": "0x25450835f3d4705fda8591dea023258e01904800db917fe921b335420ece8019",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://5d8953febe29dd6c72c75e0d5f9124304be2b4f689fee88877031bd34d414e8e",
+				"dweb:/ipfs/QmS7iFHdMKXAoEUtEmjdnnkoDDwzUXVCFm6x963Kk1faeb"
+			]
+		},
+		"contracts/studentmanager/interfaces/IMissionFactory.sol": {
+			"keccak256": "0x3568db57a11f047797724d61b952b6171ee85fe3f00390f8901030ce5ccb3210",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://5bf687c3c6a2d313605b61a63040724374c0b07a089b7a3cf4bf6486ac17a7a8",
+				"dweb:/ipfs/QmTyZX1YWFtN5Dtq17M2tDoJUtCG4om6TNAb3yt67gRyKb"
+			]
+		},
+		"contracts/studentmanager/interfaces/IScholarshipFactory.sol": {
+			"keccak256": "0x89713cb8d678dd501a9c26f18b6d965524103537b0ed2a7b03e9111607a1ef0c",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://6637cf1d64347c0abbd39cee530c5f8f8e5117bbedd18709d4f8041a3f763227",
+				"dweb:/ipfs/QmQwDDqDWaY2dpwMMqVkbE1PsYBjpgTjHQWaep1KMHaV48"
+			]
+		},
+		"contracts/studentmanager/interfaces/ISubjectFactory.sol": {
+			"keccak256": "0xbeec611f018fa053b6fd3bc7e825e12958a3c2f7f6dd675502d78b69b97f8dfe",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://bc877702550a3913d07a423ae52d5503a0e345358a6b871b403a10a7190b21df",
+				"dweb:/ipfs/Qma2q24duu9XWjArVZg2G5YSXc1Q6rdBf8cPZBbt5JjHMN"
+			]
+		},
+		"contracts/studentmanager/interfaces/ITuitionFactory.sol": {
+			"keccak256": "0x75c7d6d7fa1a7bdb197834e588a45bb930aa3ce8f826157412bc68065b054a0a",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://d7f10e9b112d8c73d40930f012a9eb59eafd7723b0658c374540ffda18c258ea",
+				"dweb:/ipfs/QmS5PtqmhWsgK3beSKaqaxd3Rfq7YPJnqjAKg96q51rHYP"
+			]
+		}
+	},
+	"version": 1
+}

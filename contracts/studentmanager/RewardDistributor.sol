@@ -65,4 +65,7 @@ contract RewardDistributor is IRewardDistributor, Ownable {
         return IERC20(UITToken).balanceOf(address(this));
     }
 
+    function getUITTokenAddress()public override view returns(address){
+        return address(UITToken);
+    }
 }

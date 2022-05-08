@@ -94,7 +94,10 @@ contract ScholarshipContract is IScholarshipContract {
         onlyOpen
     {
         for (uint256 i = 0; i < _students.length; i++) {
-            require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
+            require(
+                accessControll.hasRole(keccak256("STUDENT"), _students[i]),
+                "Should only add student"
+            );
             require(!participantToTrue[_students[i]], "Added");
             participants.push(_students[i]);
             participantToIndex[_students[i]] = participants.length - 1;
@@ -105,6 +108,7 @@ contract ScholarshipContract is IScholarshipContract {
 
     function removeStudentFromScholarship(address _student)
         external
+        override
         onlyRoleAdmin
     {
         require(participantToTrue[_student], "Error when remove");
@@ -117,7 +121,7 @@ contract ScholarshipContract is IScholarshipContract {
     function close() external override onlyOwner {
         require(block.timestamp > scholarship.endTime, "Not yet ready");
         status = Status.Close;
-        address[] memory student= getParticipantList();
+        address[] memory student = getParticipantList();
         for (uint256 i = 0; i < amount; i++) {
             rewardDistributor.distributeReward(student[i], scholarship.award);
         }
@@ -133,7 +137,10 @@ contract ScholarshipContract is IScholarshipContract {
         address[] memory student = new address[](participants.length);
         uint256 index;
         for (uint256 i = 0; i < participants.length; i++) {
-            if (participantToTrue[participants[i]] && participants[i] != address(0)) {
+            if (
+                participantToTrue[participants[i]] &&
+                participants[i] != address(0)
+            ) {
                 student[index] = participants[i];
                 index++;
             }

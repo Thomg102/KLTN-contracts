@@ -1,0 +1,337 @@
+{
+	"id": "2a34d5862d4ed20746c3a798b5142a56",
+	"_format": "hh-sol-build-info-1",
+	"solcVersion": "0.8.7",
+	"solcLongVersion": "0.8.7+commit.e28d00a7",
+	"input": {
+		"language": "Solidity",
+		"sources": {
+			"contracts/studentmanager/interfaces/ITuitionFactory.sol": {
+				"content": "// SPDX-License-Identifier: UNLICENSED\r\npragma solidity ^0.8.0;\r\n\r\ninterface ITuitionFactory {\r\n    function createNewTuition(\r\n        address owner,\r\n        address _accessControll,\r\n        address _rewardDistributor,\r\n        address _UITToken\r\n    ) external returns (address);\r\n}\r\n"
+			}
+		},
+		"settings": {
+			"optimizer": {
+				"enabled": false,
+				"runs": 200
+			},
+			"outputSelection": {
+				"*": {
+					"": [
+						"ast"
+					],
+					"*": [
+						"abi",
+						"metadata",
+						"devdoc",
+						"userdoc",
+						"evm.legacyAssembly",
+						"evm.bytecode",
+						"evm.deployedBytecode",
+						"evm.methodIdentifiers",
+						"evm.gasEstimates",
+						"evm.assembly"
+					]
+				}
+			}
+		}
+	},
+	"output": {
+		"contracts": {
+			"contracts/studentmanager/interfaces/ITuitionFactory.sol": {
+				"ITuitionFactory": {
+					"abi": [
+						{
+							"inputs": [
+								{
+									"internalType": "address",
+									"name": "owner",
+									"type": "address"
+								},
+								{
+									"internalType": "address",
+									"name": "_accessControll",
+									"type": "address"
+								},
+								{
+									"internalType": "address",
+									"name": "_rewardDistributor",
+									"type": "address"
+								},
+								{
+									"internalType": "address",
+									"name": "_UITToken",
+									"type": "address"
+								}
+							],
+							"name": "createNewTuition",
+							"outputs": [
+								{
+									"internalType": "address",
+									"name": "",
+									"type": "address"
+								}
+							],
+							"stateMutability": "nonpayable",
+							"type": "function"
+						}
+					],
+					"devdoc": {
+						"kind": "dev",
+						"methods": {},
+						"version": 1
+					},
+					"evm": {
+						"assembly": "",
+						"bytecode": {
+							"functionDebugData": {},
+							"generatedSources": [],
+							"linkReferences": {},
+							"object": "",
+							"opcodes": "",
+							"sourceMap": ""
+						},
+						"deployedBytecode": {
+							"functionDebugData": {},
+							"generatedSources": [],
+							"immutableReferences": {},
+							"linkReferences": {},
+							"object": "",
+							"opcodes": "",
+							"sourceMap": ""
+						},
+						"gasEstimates": null,
+						"legacyAssembly": null,
+						"methodIdentifiers": {
+							"createNewTuition(address,address,address,address)": "14560c38"
+						}
+					},
+					"metadata": "{\"compiler\":{\"version\":\"0.8.7+commit.e28d00a7\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_accessControll\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_rewardDistributor\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_UITToken\",\"type\":\"address\"}],\"name\":\"createNewTuition\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/studentmanager/interfaces/ITuitionFactory.sol\":\"ITuitionFactory\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/studentmanager/interfaces/ITuitionFactory.sol\":{\"keccak256\":\"0x42141bcaa6f04bc6596d5ed2c596a1f3f601140066924b22e9accd560a1c7824\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://a2e62a186dfc2897aa2988d1cbfe6c3d394eec3978c3c45ee08ff2a767b3b5f5\",\"dweb:/ipfs/Qma7vhzwivyQLWCXCCWbBc6ZNDwT1mFeuVJjvgfBjx3aYw\"]}},\"version\":1}",
+					"userdoc": {
+						"kind": "user",
+						"methods": {},
+						"version": 1
+					}
+				}
+			}
+		},
+		"sources": {
+			"contracts/studentmanager/interfaces/ITuitionFactory.sol": {
+				"ast": {
+					"absolutePath": "contracts/studentmanager/interfaces/ITuitionFactory.sol",
+					"exportedSymbols": {
+						"ITuitionFactory": [
+							15
+						]
+					},
+					"id": 16,
+					"license": "UNLICENSED",
+					"nodeType": "SourceUnit",
+					"nodes": [
+						{
+							"id": 1,
+							"literals": [
+								"solidity",
+								"^",
+								"0.8",
+								".0"
+							],
+							"nodeType": "PragmaDirective",
+							"src": "40:23:0"
+						},
+						{
+							"abstract": false,
+							"baseContracts": [],
+							"contractDependencies": [],
+							"contractKind": "interface",
+							"fullyImplemented": false,
+							"id": 15,
+							"linearizedBaseContracts": [
+								15
+							],
+							"name": "ITuitionFactory",
+							"nameLocation": "77:15:0",
+							"nodeType": "ContractDefinition",
+							"nodes": [
+								{
+									"functionSelector": "14560c38",
+									"id": 14,
+									"implemented": false,
+									"kind": "function",
+									"modifiers": [],
+									"name": "createNewTuition",
+									"nameLocation": "109:16:0",
+									"nodeType": "FunctionDefinition",
+									"parameters": {
+										"id": 10,
+										"nodeType": "ParameterList",
+										"parameters": [
+											{
+												"constant": false,
+												"id": 3,
+												"mutability": "mutable",
+												"name": "owner",
+												"nameLocation": "144:5:0",
+												"nodeType": "VariableDeclaration",
+												"scope": 14,
+												"src": "136:13:0",
+												"stateVariable": false,
+												"storageLocation": "default",
+												"typeDescriptions": {
+													"typeIdentifier": "t_address",
+													"typeString": "address"
+												},
+												"typeName": {
+													"id": 2,
+													"name": "address",
+													"nodeType": "ElementaryTypeName",
+													"src": "136:7:0",
+													"stateMutability": "nonpayable",
+													"typeDescriptions": {
+														"typeIdentifier": "t_address",
+														"typeString": "address"
+													}
+												},
+												"visibility": "internal"
+											},
+											{
+												"constant": false,
+												"id": 5,
+												"mutability": "mutable",
+												"name": "_accessControll",
+												"nameLocation": "168:15:0",
+												"nodeType": "VariableDeclaration",
+												"scope": 14,
+												"src": "160:23:0",
+												"stateVariable": false,
+												"storageLocation": "default",
+												"typeDescriptions": {
+													"typeIdentifier": "t_address",
+													"typeString": "address"
+												},
+												"typeName": {
+													"id": 4,
+													"name": "address",
+													"nodeType": "ElementaryTypeName",
+													"src": "160:7:0",
+													"stateMutability": "nonpayable",
+													"typeDescriptions": {
+														"typeIdentifier": "t_address",
+														"typeString": "address"
+													}
+												},
+												"visibility": "internal"
+											},
+											{
+												"constant": false,
+												"id": 7,
+												"mutability": "mutable",
+												"name": "_rewardDistributor",
+												"nameLocation": "202:18:0",
+												"nodeType": "VariableDeclaration",
+												"scope": 14,
+												"src": "194:26:0",
+												"stateVariable": false,
+												"storageLocation": "default",
+												"typeDescriptions": {
+													"typeIdentifier": "t_address",
+													"typeString": "address"
+												},
+												"typeName": {
+													"id": 6,
+													"name": "address",
+													"nodeType": "ElementaryTypeName",
+													"src": "194:7:0",
+													"stateMutability": "nonpayable",
+													"typeDescriptions": {
+														"typeIdentifier": "t_address",
+														"typeString": "address"
+													}
+												},
+												"visibility": "internal"
+											},
+											{
+												"constant": false,
+												"id": 9,
+												"mutability": "mutable",
+												"name": "_UITToken",
+												"nameLocation": "239:9:0",
+												"nodeType": "VariableDeclaration",
+												"scope": 14,
+												"src": "231:17:0",
+												"stateVariable": false,
+												"storageLocation": "default",
+												"typeDescriptions": {
+													"typeIdentifier": "t_address",
+													"typeString": "address"
+												},
+												"typeName": {
+													"id": 8,
+													"name": "address",
+													"nodeType": "ElementaryTypeName",
+													"src": "231:7:0",
+													"stateMutability": "nonpayable",
+													"typeDescriptions": {
+														"typeIdentifier": "t_address",
+														"typeString": "address"
+													}
+												},
+												"visibility": "internal"
+											}
+										],
+										"src": "125:130:0"
+									},
+									"returnParameters": {
+										"id": 13,
+										"nodeType": "ParameterList",
+										"parameters": [
+											{
+												"constant": false,
+												"id": 12,
+												"mutability": "mutable",
+												"name": "",
+												"nameLocation": "-1:-1:-1",
+												"nodeType": "VariableDeclaration",
+												"scope": 14,
+												"src": "274:7:0",
+												"stateVariable": false,
+												"storageLocation": "default",
+												"typeDescriptions": {
+													"typeIdentifier": "t_address",
+													"typeString": "address"
+												},
+												"typeName": {
+													"id": 11,
+													"name": "address",
+													"nodeType": "ElementaryTypeName",
+													"src": "274:7:0",
+													"stateMutability": "nonpayable",
+													"typeDescriptions": {
+														"typeIdentifier": "t_address",
+														"typeString": "address"
+													}
+												},
+												"visibility": "internal"
+											}
+										],
+										"src": "273:9:0"
+									},
+									"scope": 15,
+									"src": "100:183:0",
+									"stateMutability": "nonpayable",
+									"virtual": false,
+									"visibility": "external"
+								}
+							],
+							"scope": 16,
+							"src": "67:219:0",
+							"usedErrors": []
+						}
+					],
+					"src": "40:248:0"
+				},
+				"id": 0
+			}
+		}
+	}
+}

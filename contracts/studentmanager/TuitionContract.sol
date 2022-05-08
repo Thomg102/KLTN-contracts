@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import "./interfaces/ITuitionContract.sol";
 import "./interfaces/IAccessControl.sol";
+import "./interfaces/IRewardDistributor.sol";
 
 contract TuitionContract is ITuitionContract {
     using SafeERC20 for IERC20;
@@ -11,7 +12,6 @@ contract TuitionContract is ITuitionContract {
     Tuition public tuition;
     Status public status = Status.Lock;
 
-    address public UITToken;
     IAccessControl public accessControll;
     address public rewardDistributor;
 
@@ -19,7 +19,7 @@ contract TuitionContract is ITuitionContract {
     uint256 public amount;
     mapping(address => uint256) public participantToIndex;
     mapping(address => bool) public participantToTrue;
-    mapping(address =>bool) public completedAddress;
+    mapping(address => bool) public completedAddress;
 
     modifier onlyLock() {
         require(status == Status.Lock, "MC: Only Lock");
@@ -95,7 +95,10 @@ contract TuitionContract is ITuitionContract {
         onlyOpen
     {
         for (uint256 i = 0; i < _students.length; i++) {
-            require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
+            require(
+                accessControll.hasRole(keccak256("STUDENT"), _students[i]),
+                "Should only add student"
+            );
             require(!participantToTrue[_students[i]], "Added");
             participants.push(_students[i]);
             participantToIndex[_students[i]] = participants.length - 1;
@@ -104,7 +107,11 @@ contract TuitionContract is ITuitionContract {
         }
     }
 
-    function removeStudentFromTuition(address _student) external onlyRoleAdmin {
+    function removeStudentFromTuition(address _student)
+        external
+        override
+        onlyRoleAdmin
+    {
         require(participantToTrue[_student], "Error when remove");
         uint256 index = participantToIndex[_student];
         amount--;
@@ -113,7 +120,10 @@ contract TuitionContract is ITuitionContract {
     }
 
     function paymentByToken() external override onlyRoleStudent {
-        require(!participantToTrue[msg.sender], "TC: You paid tuition");
+        require(participantToTrue[msg.sender], "TC: You are not in list");
+        require(!completedAddress[msg.sender], "TC: You paid tuition");
+        address UITToken = IRewardDistributor(rewardDistributor)
+            .getUITTokenAddress();
         IERC20(UITToken).safeTransferFrom(
             msg.sender,
             rewardDistributor,
@@ -123,26 +133,32 @@ contract TuitionContract is ITuitionContract {
         emit Payment(msg.sender, block.timestamp, PaymentMethod.Token);
     }
 
-    function paymentByCurrency(address student)
-        external
-        override
-        onlyRoleAdmin
-    {
-        require(!participantToTrue[student], "TC: Student paid tuition");
+    function paymentByCurrency() external override onlyRoleAdmin {
+        require(participantToTrue[msg.sender], "TC: You are not in list");
+        require(!completedAddress[msg.sender], "TC: You paid tuition");
         completedAddress[msg.sender] = true;
-        emit Payment(student, block.timestamp, PaymentMethod.Currency);
+        emit Payment(msg.sender, block.timestamp, PaymentMethod.Currency);
     }
 
     function close() external override onlyOwner {
         status = Status.Close;
+        require(block.timestamp > tuition.endTime);
         emit Close(block.timestamp);
     }
 
-    function getParticipantList() public view override returns (address[] memory) {
+    function getParticipantList()
+        public
+        view
+        override
+        returns (address[] memory)
+    {
         address[] memory student = new address[](amount);
         uint256 index;
         for (uint256 i = 0; i < participants.length; i++) {
-            if (participantToTrue[participants[i]] && participants[i] != address(0)) {
+            if (
+                participantToTrue[participants[i]] &&
+                participants[i] != address(0)
+            ) {
                 student[index] = participants[i];
                 index++;
             }

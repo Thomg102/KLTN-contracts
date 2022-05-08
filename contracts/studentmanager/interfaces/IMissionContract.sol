@@ -44,6 +44,10 @@ interface IMissionContract {
 
     function addStudentToMission(address[] memory _students) external;
 
+    function register() external;
+
+    function cancelRegister() external;
+
     function confirmCompletedAddress(address[] memory _student) external;
 
     function unConfirmCompletedAddress(address _student) external;

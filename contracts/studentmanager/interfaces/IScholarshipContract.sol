@@ -40,10 +40,9 @@ interface IScholarshipContract {
 
     function addStudentToScholarship(address[] memory _students) external;
 
+    function removeStudentFromScholarship(address _student) external;
+
     function close() external;
 
-    function getParticipantList()
-        external
-        view
-        returns (address[] memory);
+    function getParticipantList() external view returns (address[] memory);
 }

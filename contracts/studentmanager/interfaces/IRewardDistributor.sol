@@ -8,4 +8,6 @@ interface IRewardDistributor {
     function removeDistributorsAddress(address distributor) external;
 
     function distributeReward(address account, uint256 amount) external;
+
+    function getUITTokenAddress()external view returns(address);
 }

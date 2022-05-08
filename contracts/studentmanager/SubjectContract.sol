@@ -116,12 +116,15 @@ contract SubjectContract is ISubjectContract {
             "MC: Only the person in charge"
         );
         for (uint256 i = 0; i < _students.length; i++) {
-             require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
+            require(
+                accessControll.hasRole(keccak256("STUDENT"), _students[i]),
+                "Should only add student"
+            );
             _register(_students[i]);
         }
     }
 
-    function register() external onlyOpen onlyRoleStudent {
+    function register() external override onlyOpen onlyRoleStudent {
         _register(msg.sender);
     }
 
@@ -130,9 +133,9 @@ contract SubjectContract is ISubjectContract {
         require(!instance.participantToTrue, "SC: register error");
 
         amount++;
-        if(instance.studentAddress != address(0)){
+        if (instance.studentAddress != address(0)) {
             instance.participantToTrue = true;
-        }else{
+        } else {
             Student memory st = Student({
                 studentAddress: _student,
                 participantToTrue: true
@@ -140,11 +143,11 @@ contract SubjectContract is ISubjectContract {
             addressToStudent[_student] = st;
             student.push(_student);
         }
-        
-        require(amount <= subject.maxEntrant);
+
+        require(amount <= subject.maxEntrant, "Reach out limit");
     }
 
-    function cancelRegister() external onlyOpen onlyRoleStudent {
+    function cancelRegister() external override onlyOpen onlyRoleStudent {
         Student storage instance = addressToStudent[msg.sender];
         require(instance.participantToTrue, "SC: cancel error");
         amount--;
@@ -161,7 +164,11 @@ contract SubjectContract is ISubjectContract {
         // require(_student.length == _score.length);
         for (uint256 i = 0; i < _student.length; i++) {
             Student memory instance = addressToStudent[_student[i]];
-            require(instance.participantToTrue && instance.studentAddress == _student[i], "SC: cancel error");
+            require(
+                instance.participantToTrue &&
+                    instance.studentAddress == _student[i],
+                "SC: cancel error"
+            );
             completedAddress[_student[i]] = true;
             // require(_score[i] <= 10);
             // score[_student[i]][_column] = _score[i];
@@ -169,9 +176,24 @@ contract SubjectContract is ISubjectContract {
         emit Confirm(_student.length, block.timestamp);
     }
 
+    function unConfirmCompletedAddress(address _student)
+        external
+        onlyRoleLecturer
+        onlyOpen
+    {
+        require(
+            block.timestamp > subject.endTime &&
+                block.timestamp < subject.endTimeToConfirm
+        );
+
+        require(completedAddress[_student], "SC: cancel error");
+        completedAddress[_student] = false;
+        emit UnConfirm(_student, block.timestamp);
+    }
+
     function close() external override onlyOwner {
         status = Status.Close;
-        require(block.timestamp>subject.endTimeToConfirm);
+        require(block.timestamp > subject.endTimeToConfirm);
         emit Close(block.timestamp);
     }
 
@@ -179,7 +201,10 @@ contract SubjectContract is ISubjectContract {
         address[] memory _student = new address[](amount);
         uint256 index;
         for (uint256 i = 0; i < student.length; i++) {
-            if (addressToStudent[student[i]].participantToTrue && addressToStudent[student[i]].studentAddress !=address(0)) {
+            if (
+                addressToStudent[student[i]].participantToTrue &&
+                addressToStudent[student[i]].studentAddress != address(0)
+            ) {
                 _student[index] = addressToStudent[student[i]].studentAddress;
                 index++;
             }
@@ -195,7 +220,7 @@ contract SubjectContract is ISubjectContract {
         address[] memory _student = new address[](amount);
         uint256 index;
         for (uint256 i = 0; i < student.length; i++) {
-            if (completedAddress[student[i]] && student[i]!=address(0)) {
+            if (completedAddress[student[i]] && student[i] != address(0)) {
                 _student[index] = student[i];
                 index++;
             }

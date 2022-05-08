@@ -1,0 +1,75 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_accessControll",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_rewardDistributor",
+						"type": "address"
+					}
+				],
+				"name": "createNewTuition",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/studentmanager/interfaces/ITuitionFactory.sol": "ITuitionFactory"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/studentmanager/interfaces/ITuitionFactory.sol": {
+			"keccak256": "0x75c7d6d7fa1a7bdb197834e588a45bb930aa3ce8f826157412bc68065b054a0a",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://d7f10e9b112d8c73d40930f012a9eb59eafd7723b0658c374540ffda18c258ea",
+				"dweb:/ipfs/QmS5PtqmhWsgK3beSKaqaxd3Rfq7YPJnqjAKg96q51rHYP"
+			]
+		}
+	},
+	"version": 1
+}

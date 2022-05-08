@@ -40,11 +40,13 @@ interface ITuitionContract {
 
     function addStudentToTuition(address[] memory _students) external;
 
-    function close() external;
+    function removeStudentFromTuition(address _student) external;
 
     function paymentByToken() external;
 
-    function paymentByCurrency(address student) external;
+    function paymentByCurrency() external;
+
+    function close() external;
 
     function getParticipantList() external view returns (address[] memory);
 }

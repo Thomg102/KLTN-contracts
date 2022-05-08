@@ -16,7 +16,7 @@ contract MissionContract is IMissionContract {
 
     address[] public participants;
     uint256 public amount;
-    mapping(address=>bool) public addressIsExist;
+    mapping(address => bool) public addressIsExist;
     mapping(address => bool) public participantToTrue;
     mapping(address => bool) public completedAddress;
 
@@ -109,28 +109,34 @@ contract MissionContract is IMissionContract {
             "MC: Only the person in charge"
         );
         for (uint256 i = 0; i < _students.length; i++) {
-             require(accessControll.hasRole(keccak256("STUDENT"), _students[i]), "Should only add student");
+            require(
+                accessControll.hasRole(keccak256("STUDENT"), _students[i]),
+                "Should only add student"
+            );
             _register(_students[i]);
         }
     }
 
-    function register() external onlyRoleStudent onlyOpen {
+    function register() external override onlyRoleStudent onlyOpen {
         _register(msg.sender);
     }
 
     function _register(address _student) private {
-        require(block.timestamp <= mission.endTimeToRegister, "Expired time to register");
+        require(
+            block.timestamp <= mission.endTimeToRegister,
+            "Expired time to register"
+        );
         require(!participantToTrue[_student], "MS: register error");
         amount++;
-        if (!addressIsExist[_student]){
+        if (!addressIsExist[_student]) {
             participants.push(_student);
         }
-        addressIsExist[_student]=true;
+        addressIsExist[_student] = true;
         participantToTrue[_student] = true;
         require(amount <= mission.maxEntrant);
     }
 
-    function cancelRegister() external onlyRoleStudent onlyOpen {
+    function cancelRegister() external override onlyRoleStudent onlyOpen {
         require(participantToTrue[msg.sender], "MS: cancel error");
         amount--;
         participantToTrue[msg.sender] = false;
@@ -174,8 +180,8 @@ contract MissionContract is IMissionContract {
         status = Status.Close;
         address[] memory student = getParticipantListCompleted();
         for (uint256 i = 0; i < student.length; i++) {
-            if(student[i] !=address(0))
-            rewardDistributor.distributeReward(student[i], mission.award);
+            if (student[i] != address(0))
+                rewardDistributor.distributeReward(student[i], mission.award);
         }
         emit Close(block.timestamp);
     }
