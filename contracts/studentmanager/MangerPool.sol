@@ -73,6 +73,11 @@ contract ManagerPool is Ownable {
         studentInfo[msg.sender] = hashInfo;
     }
 
+    // function update(studentadress,hash ) {
+    //   studentadress
+    //   require(msg.sender == );
+    // }
+
     function addLecturerInfo(address lecturerAddr, string memory hashInfo)
         public
         onlyRoleAdmin
