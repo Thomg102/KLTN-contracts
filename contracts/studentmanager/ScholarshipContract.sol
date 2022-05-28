@@ -37,8 +37,9 @@ contract ScholarshipContract is IScholarshipContract {
 
     modifier onlyRoleAdmin() {
         require(
-            accessControll.hasRole(keccak256("ADMIN"), msg.sender),
-            "SC: Only Lecturer"
+            accessControll.hasRole(keccak256("ADMIN"), msg.sender) ||
+                accessControll.hasRole(keccak256("LECTURER"), msg.sender),
+            "SC: Only Lecturer or Admin"
         );
         _;
     }
@@ -62,7 +63,7 @@ contract ScholarshipContract is IScholarshipContract {
     }
 
     function setBasicForScholarship(
-        uint256 _scholarshipId,
+        string memory _scholarshipId,
         string memory _urlMetadata,
         uint256 _award,
         uint256 _startTime,
@@ -104,6 +105,8 @@ contract ScholarshipContract is IScholarshipContract {
             participantToTrue[_students[i]] = true;
             amount++;
         }
+
+        emit AddStudentToScholarship(_students.length, block.timestamp);
     }
 
     function removeStudentFromScholarship(address _student)
@@ -116,6 +119,8 @@ contract ScholarshipContract is IScholarshipContract {
         participantToTrue[_student] = false;
         amount--;
         delete participants[index];
+
+        emit RemoveStudentFromScholarship(_student, block.timestamp);
     }
 
     function close() external override onlyOwner {

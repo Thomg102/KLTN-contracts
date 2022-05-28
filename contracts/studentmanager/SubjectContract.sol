@@ -59,7 +59,7 @@ contract SubjectContract is ISubjectContract {
     }
 
     function setBasicForSubject(
-        uint256 _subjectId,
+        string memory _subjectId,
         string memory _urlMetadata,
         uint256 _maxEntrant,
         address _persionInCharge,
@@ -145,6 +145,7 @@ contract SubjectContract is ISubjectContract {
         }
 
         require(amount <= subject.maxEntrant, "Reach out limit");
+        emit Register(_student);
     }
 
     function cancelRegister() external override onlyOpen onlyRoleStudent {
@@ -152,6 +153,7 @@ contract SubjectContract is ISubjectContract {
         require(instance.participantToTrue, "SC: cancel error");
         amount--;
         instance.participantToTrue = false;
+        emit CancelRegister(msg.sender);
     }
 
     function confirmCompletedAddress(

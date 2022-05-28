@@ -62,7 +62,7 @@ contract MissionContract is IMissionContract {
     }
 
     function setBasicForMission(
-        uint256 _missionId,
+        string memory _missionId,
         string memory _urlMetadata,
         uint256 _award,
         uint256 _maxEntrant,
@@ -134,12 +134,14 @@ contract MissionContract is IMissionContract {
         addressIsExist[_student] = true;
         participantToTrue[_student] = true;
         require(amount <= mission.maxEntrant);
+        emit Register(_student);
     }
 
     function cancelRegister() external override onlyRoleStudent onlyOpen {
         require(participantToTrue[msg.sender], "MS: cancel error");
         amount--;
         participantToTrue[msg.sender] = false;
+        emit CancelRegister(msg.sender);
     }
 
     function confirmCompletedAddress(address[] calldata _student)

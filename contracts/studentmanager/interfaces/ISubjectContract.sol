@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface ISubjectContract {
     struct Subject {
-        uint256 Id;
+        string Id;
         string urlMetadata;
         uint256 maxEntrant;
         address personInCharge;
@@ -34,13 +34,15 @@ interface ISubjectContract {
         Close
     }
 
-    event CreatedNewSubject(uint256 indexed id);
-    event Confirm(uint256 studentslength, uint256 timestamp);
+    event CreatedNewMission(uint256 indexed id);
+    event Register(address _student);
+    event CancelRegister(address _student);
+    event Confirm(uint256 studentsAmount, uint256 timestamp);
     event UnConfirm(address student, uint256 timestamp);
     event Close(uint256 timestamp);
 
     function setBasicForSubject(
-        uint256 _subjectId,
+        string memory _subjectId,
         string memory _urlMetadata,
         uint256 _maxEntrant,
         address _persionInCharge,

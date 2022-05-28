@@ -8,35 +8,60 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
-import { ERC1155Holder } from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract ActiveNFT is IActiveNFT, Pausable, Ownable, ReentrancyGuard, ERC1155Holder {
+contract ActiveNFT is
+    IActiveNFT,
+    Pausable,
+    Ownable,
+    ReentrancyGuard,
+    ERC1155Holder
+{
     using SafeERC20 for IERC20;
     using Counters for Counters.Counter;
 
     address public accessControl;
+    address public marketplaceAddress;
     address public immutable UITNFT;
 
-    bytes32 constant internal ADMIN_ROLE = keccak256("ADMIN");
+    bytes32 internal constant ADMIN_ROLE = keccak256("ADMIN");
 
     ActiveInfo[] public activeInfoList;
 
-    constructor(
-        address _accessControl,
-        address _UITNFT
-    ) {
-        require(_accessControl != address(0), "ActiveNFT: Access control contract cannot be 0");
-        require(_UITNFT != address(0), "ActiveNFT: UITNFToken must not be address 0");
+    constructor(address _accessControl, address _UITNFT) {
+        require(
+            _accessControl != address(0),
+            "ActiveNFT: Access control contract cannot be 0"
+        );
+        require(
+            _UITNFT != address(0),
+            "ActiveNFT: UITNFToken must not be address 0"
+        );
         UITNFT = _UITNFT;
     }
 
     modifier onlyAdmin() {
-        require(IAccessControl(accessControl).hasRole(ADMIN_ROLE, msg.sender), "Marketplace: Only admin can call this function");
+        require(
+            IAccessControl(accessControl).hasRole(ADMIN_ROLE, msg.sender),
+            "Marketplace: Only admin can call this function"
+        );
         _;
+    }
+
+    modifier onlyMarketplace() {
+        require(msg.sender == marketplaceAddress);
+        _;
+    }
+
+    function setMarketplaceAddress(address _marketplaceAddress)
+        external
+        onlyAdmin
+    {
+        marketplaceAddress = _marketplaceAddress;
     }
 
     /** USER
@@ -44,10 +69,18 @@ contract ActiveNFT is IActiveNFT, Pausable, Ownable, ReentrancyGuard, ERC1155Hol
      * @param _itemId itemId
      * @param _amount amount of item want to active
      */
-    function requestActiveNFT(uint _itemId, uint _amount) external override whenNotPaused nonReentrant {
+    function requestActiveNFT(uint256 _itemId, uint256 _amount)
+        external
+        override
+        whenNotPaused
+        nonReentrant
+    {
         require(_amount > 0, "ActiveNFT: amount is zero");
-        require(IERC1155(UITNFT).balanceOf(msg.sender, _itemId) >= _amount, "ActiveNFT: Balance of items less than amount");
-        uint activeId = activeInfoList.length;
+        require(
+            IERC1155(UITNFT).balanceOf(msg.sender, _itemId) >= _amount,
+            "ActiveNFT: Balance of items less than amount"
+        );
+        uint256 activeId = activeInfoList.length;
         ActiveInfo memory activeInfo = ActiveInfo(
             activeId,
             msg.sender,
@@ -63,28 +96,65 @@ contract ActiveNFT is IActiveNFT, Pausable, Ownable, ReentrancyGuard, ERC1155Hol
         if (nftInfo.isCourseNFT) {
             activeInfo.isRequested = true;
 
-            emit NFTActived(activeId + 1, _itemId, _amount, block.timestamp, msg.sender, true);
-        }
-        else
-            emit ActiveNFTRequested(_itemId, _amount, block.timestamp, msg.sender);
+            emit NFTActived(
+                activeId + 1,
+                _itemId,
+                _amount,
+                block.timestamp,
+                msg.sender,
+                true
+            );
+        } else
+            emit ActiveNFTRequested(
+                _itemId,
+                _amount,
+                block.timestamp,
+                msg.sender
+            );
 
         activeInfoList.push(activeInfo);
-        IERC1155(UITNFT).safeTransferFrom(msg.sender, address(this), _itemId, _amount, "");
+        IERC1155(UITNFT).safeTransferFrom(
+            msg.sender,
+            address(this),
+            _itemId,
+            _amount,
+            ""
+        );
     }
 
     /** USER
      * @dev cancel request active NFT
      * @param _activeId itemId
      */
-    function cancelRequestActiveNFT(uint _activeId) external override whenNotPaused nonReentrant {
+    function cancelRequestActiveNFT(uint256 _activeId)
+        external
+        override
+        whenNotPaused
+        nonReentrant
+    {
         ActiveInfo storage activeInfo = activeInfoList[_activeId];
-        require(activeInfo.ownerOfRequest == msg.sender, "ActiveNFT: Not owner of request");
-        require(activeInfo.isRequested, "ActiveNFT: activeInfo is not requested");
-        require(!activeInfo.isActive, "ActiveNFT: activeInfo is already actived");
-        uint itemId = activeInfo.itemId;
+        require(
+            activeInfo.ownerOfRequest == msg.sender,
+            "ActiveNFT: Not owner of request"
+        );
+        require(
+            activeInfo.isRequested,
+            "ActiveNFT: activeInfo is not requested"
+        );
+        require(
+            !activeInfo.isActive,
+            "ActiveNFT: activeInfo is already actived"
+        );
+        uint256 itemId = activeInfo.itemId;
 
         activeInfo.isRequested = false;
-        IERC1155(UITNFT).safeTransferFrom(address(this), msg.sender, itemId, activeInfo.amount, "");
+        IERC1155(UITNFT).safeTransferFrom(
+            address(this),
+            msg.sender,
+            itemId,
+            activeInfo.amount,
+            ""
+        );
 
         emit ActiveNFTRequestCanceled(_activeId, block.timestamp);
     }
@@ -93,20 +163,46 @@ contract ActiveNFT is IActiveNFT, Pausable, Ownable, ReentrancyGuard, ERC1155Hol
      * @dev active NFT
      * @param _activeId itemId
      */
-    function activeNFT(uint _activeId) external override onlyAdmin whenNotPaused nonReentrant {
+    function activeNFT(uint256 _activeId)
+        external
+        override
+        onlyMarketplace
+        whenNotPaused
+        nonReentrant
+    {
         ActiveInfo storage activeInfo = activeInfoList[_activeId];
-        require(activeInfo.isRequested, "ActiveNFT: activeInfo is not requested");
-        require(activeInfo.isActive, "ActiveNFT: activeInfo is already actived");
-        uint itemId = activeInfo.itemId;
+        require(
+            activeInfo.isRequested,
+            "ActiveNFT: activeInfo is not requested"
+        );
+        require(
+            activeInfo.isActive,
+            "ActiveNFT: activeInfo is already actived"
+        );
+        uint256 itemId = activeInfo.itemId;
 
         activeInfo.isActive = true;
         activeInfo.activedTime = block.timestamp;
 
         NFTInfo memory nftInfo = IUITNFTToken(UITNFT).getNFTInfo(itemId);
         if (nftInfo.isCourseNFT)
-            emit NFTActived(_activeId, itemId, activeInfo.amount, block.timestamp, msg.sender, true);
+            emit NFTActived(
+                _activeId,
+                itemId,
+                activeInfo.amount,
+                block.timestamp,
+                msg.sender,
+                true
+            );
         else
-            emit NFTActived(_activeId, itemId, activeInfo.amount, block.timestamp, msg.sender, false);
+            emit NFTActived(
+                _activeId,
+                itemId,
+                activeInfo.amount,
+                block.timestamp,
+                msg.sender,
+                false
+            );
     }
 
     function setAccessControl(address _accessControl) external onlyOwner {

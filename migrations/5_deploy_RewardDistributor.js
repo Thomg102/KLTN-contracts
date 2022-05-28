@@ -1,4 +1,4 @@
-n/** @format */
+/** @format */
 
 const RewardDistributor = artifacts.require("RewardDistributor");
 

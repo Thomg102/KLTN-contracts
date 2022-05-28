@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface ITuitionContract {
     struct Tuition {
-        uint256 Id;
+        string Id;
         string urlMetadata;
         uint256 feeByToken;
         uint256 startTime;
@@ -26,10 +26,12 @@ interface ITuitionContract {
 
     event CreatedNewTuition(uint256 indexed id);
     event Payment(address student, uint256 timestamp, PaymentMethod _method);
+    event AddStudentToTuition(uint256 studentsAmount, uint256 timestamp);
+    event RemoveStudentFromTuition(address student, uint256 timestamp);
     event Close(uint256 timestamp);
 
     function setBasicForTuition(
-        uint256 _tuitionId,
+        string memory _tuitionId,
         string memory _urlMetadata,
         uint256 feeByToken,
         uint256 _startTime,

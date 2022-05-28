@@ -10,7 +10,14 @@ const config = require(configFile);
 module.exports = async (deployer, network, accounts) => {
 	console.log();
 	console.log("Deploying Marketplace ...");
-	await deployer.deploy(Marketplace, config.ACCESS_CONTROLL_ADDRESS, config.UIT_TOKEN_ADDRESS, config.UIT_NFT_TOKEN_ADDRESS);
+	await deployer.deploy(
+		Marketplace,
+		config.ACCESS_CONTROLL_ADDRESS,
+		config.UIT_TOKEN_ADDRESS,
+		config.UIT_NFT_TOKEN_ADDRESS,
+		config.REWARD_DISTRIBUTOR_ADDRESS,
+		config.ACTIVE_NFT_ADDRESS,
+	);
 	const MarketplaceInstance = await Marketplace.deployed();
 
 	await UITNFTToken.deployed().then(async (instance) => {

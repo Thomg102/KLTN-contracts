@@ -2,7 +2,6 @@
 pragma solidity >=0.8.0;
 
 interface IManagerPool {
-
     function addStudentInfo(string memory hashInfo) external;
 
     function addLecturerInfo(address lecturerAddr, string memory hashInfo)

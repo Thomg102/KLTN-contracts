@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 interface IScholarshipContract {
     struct Scholarship {
-        uint256 Id;
+        string Id;
         string urlMetadata;
         uint256 award;
         uint256 startTime;
@@ -25,11 +25,12 @@ interface IScholarshipContract {
     }
 
     event CreatedNewTuition(uint256 indexed id);
-    event Payment(address student, uint256 timestamp, PaymentMethod _method);
+    event AddStudentToScholarship(uint256 studentsAmount, uint256 timestamp);
+    event RemoveStudentFromScholarship(address student, uint256 timestamp);
     event Close(uint256 timestamp);
 
     function setBasicForScholarship(
-        uint256 _scholarshipId,
+        string memory _scholarshipId,
         string memory _urlMetadata,
         uint256 _award,
         uint256 _startTime,

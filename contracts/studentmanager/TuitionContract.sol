@@ -63,7 +63,7 @@ contract TuitionContract is ITuitionContract {
     }
 
     function setBasicForTuition(
-        uint256 _tuitionId,
+        string memory _tuitionId,
         string memory _urlMetadata,
         uint256 _feeByToken,
         uint256 _startTime,
@@ -105,6 +105,7 @@ contract TuitionContract is ITuitionContract {
             participantToTrue[_students[i]] = true;
             amount++;
         }
+        emit AddStudentToTuition(_students.length, block.timestamp);
     }
 
     function removeStudentFromTuition(address _student)
@@ -113,10 +114,15 @@ contract TuitionContract is ITuitionContract {
         onlyRoleAdmin
     {
         require(participantToTrue[_student], "Error when remove");
+        require(
+            completedAddress[_student] = false,
+            "This student have completed"
+        );
         uint256 index = participantToIndex[_student];
         amount--;
         participantToTrue[_student] = false;
         delete participants[index];
+        emit RemoveStudentFromTuition(_student, block.timestamp);
     }
 
     function paymentByToken() external override onlyRoleStudent {
