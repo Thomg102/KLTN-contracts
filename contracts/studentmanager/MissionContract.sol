@@ -144,7 +144,7 @@ contract MissionContract is IMissionContract {
         emit CancelRegister(msg.sender);
     }
 
-    function confirmCompletedAddress(address[] calldata _student)
+    function confirmCompletedAddress(address[] calldata _students)
         external
         override
         onlyRoleLecturer
@@ -154,14 +154,14 @@ contract MissionContract is IMissionContract {
             block.timestamp > mission.endTime &&
                 block.timestamp < mission.endTimeToConfirm
         );
-        for (uint256 i = 0; i < _student.length; i++) {
-            require(participantToTrue[_student[i]], "MS: confirm error");
-            completedAddress[_student[i]] = true;
+        for (uint256 i = 0; i < _students.length; i++) {
+            require(participantToTrue[_students[i]], "MS: confirm error");
+            completedAddress[_students[i]] = true;
         }
-        emit Confirm(_student.length, block.timestamp);
+        emit Confirm(_students.length, block.timestamp);
     }
 
-    function unConfirmCompletedAddress(address[] calldata _student)
+    function unConfirmCompletedAddress(address[] calldata _students)
         external
         override
         onlyRoleLecturer
@@ -171,12 +171,12 @@ contract MissionContract is IMissionContract {
             block.timestamp > mission.endTime &&
                 block.timestamp < mission.endTimeToConfirm
         );
-        for (uint256 i = 0; i < _student.length; i++) {
-            require(completedAddress[_student[i]], "MS: confirm error");
-            completedAddress[_student[i]] = false;
+        for (uint256 i = 0; i < _students.length; i++) {
+            require(completedAddress[_students[i]], "MS: confirm error");
+            completedAddress[_students[i]] = false;
         }
 
-        emit UnConfirm(_student.length, block.timestamp);
+        emit UnConfirm(_students.length, block.timestamp);
     }
 
     function close() external override onlyOwner {

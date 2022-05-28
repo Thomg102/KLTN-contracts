@@ -73,7 +73,7 @@ interface ISubjectContract {
         // ScoreColumn _column
     ) external;
 
-    function unConfirmCompletedAddress(address[] calldata _student) external;
+    function unConfirmCompletedAddress(address[] calldata _students) external;
 
     function close() external;
 }

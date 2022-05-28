@@ -157,28 +157,28 @@ contract SubjectContract is ISubjectContract {
     }
 
     function confirmCompletedAddress(
-        address[] calldata _student // uint256[] calldata _score,// ScoreColumn _column
+        address[] calldata _students // uint256[] calldata _score,// ScoreColumn _column
     ) external override onlyOpen onlyRoleLecturer {
         require(
             block.timestamp > subject.endTime &&
                 block.timestamp < subject.endTimeToConfirm
         );
         // require(_student.length == _score.length);
-        for (uint256 i = 0; i < _student.length; i++) {
-            Student memory instance = addressToStudent[_student[i]];
+        for (uint256 i = 0; i < _students.length; i++) {
+            Student memory instance = addressToStudent[_students[i]];
             require(
                 instance.participantToTrue &&
-                    instance.studentAddress == _student[i],
+                    instance.studentAddress == _students[i],
                 "SC: cancel error"
             );
-            completedAddress[_student[i]] = true;
+            completedAddress[_students[i]] = true;
             // require(_score[i] <= 10);
             // score[_student[i]][_column] = _score[i];
         }
-        emit Confirm(_student.length, block.timestamp);
+        emit Confirm(_students.length, block.timestamp);
     }
 
-    function unConfirmCompletedAddress(address[] calldata _student)
+    function unConfirmCompletedAddress(address[] calldata _students)
         external
         onlyRoleLecturer
         onlyOpen
@@ -187,12 +187,12 @@ contract SubjectContract is ISubjectContract {
             block.timestamp > subject.endTime &&
                 block.timestamp < subject.endTimeToConfirm
         );
-        for (uint256 i = 0; i < _student.length; i++) {
-            require(completedAddress[_student[i]], "SC: cancel error");
-            completedAddress[_student[i]] = false;
+        for (uint256 i = 0; i < _students.length; i++) {
+            require(completedAddress[_students[i]], "SC: cancel error");
+            completedAddress[_students[i]] = false;
         }
 
-        emit UnConfirm(_student.length, block.timestamp);
+        emit UnConfirm(_students.length, block.timestamp);
     }
 
     function close() external override onlyOwner {

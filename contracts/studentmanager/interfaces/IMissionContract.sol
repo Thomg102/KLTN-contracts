@@ -50,9 +50,9 @@ interface IMissionContract {
 
     function cancelRegister() external;
 
-    function confirmCompletedAddress(address[] memory _student) external;
+    function confirmCompletedAddress(address[] memory _students) external;
 
-    function unConfirmCompletedAddress(address[] memory _student) external;
+    function unConfirmCompletedAddress(address[] memory _students) external;
 
     function close() external;
 
