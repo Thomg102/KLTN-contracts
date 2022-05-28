@@ -38,7 +38,7 @@ interface ISubjectContract {
     event Register(address _student);
     event CancelRegister(address _student);
     event Confirm(uint256 studentsAmount, uint256 timestamp);
-    event UnConfirm(address student, uint256 timestamp);
+    event UnConfirm(uint256 studentsAmount, uint256 timestamp);
     event Close(uint256 timestamp);
 
     function setBasicForSubject(
@@ -73,7 +73,7 @@ interface ISubjectContract {
         // ScoreColumn _column
     ) external;
 
-    function unConfirmCompletedAddress(address _student) external;
+    function unConfirmCompletedAddress(address[] calldata _student) external;
 
     function close() external;
 }

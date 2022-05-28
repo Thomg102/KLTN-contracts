@@ -109,18 +109,20 @@ contract ScholarshipContract is IScholarshipContract {
         emit AddStudentToScholarship(_students.length, block.timestamp);
     }
 
-    function removeStudentFromScholarship(address _student)
+    function removeStudentFromScholarship(address[] calldata _students)
         external
         override
         onlyRoleAdmin
     {
-        require(participantToTrue[_student], "Error when remove");
-        uint256 index = participantToIndex[_student];
-        participantToTrue[_student] = false;
-        amount--;
-        delete participants[index];
+        for (uint256 i = 0; i < _students.length; i++) {
+            require(participantToTrue[_students[i]], "Error when remove");
+            uint256 index = participantToIndex[_students[i]];
+            participantToTrue[_students[i]] = false;
+            delete participants[index];
+        }
+        amount-= _students.length;
 
-        emit RemoveStudentFromScholarship(_student, block.timestamp);
+        emit RemoveStudentFromScholarship(_students.length, block.timestamp);
     }
 
     function close() external override onlyOwner {

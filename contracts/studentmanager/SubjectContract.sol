@@ -178,7 +178,7 @@ contract SubjectContract is ISubjectContract {
         emit Confirm(_student.length, block.timestamp);
     }
 
-    function unConfirmCompletedAddress(address _student)
+    function unConfirmCompletedAddress(address[] calldata _student)
         external
         onlyRoleLecturer
         onlyOpen
@@ -187,10 +187,12 @@ contract SubjectContract is ISubjectContract {
             block.timestamp > subject.endTime &&
                 block.timestamp < subject.endTimeToConfirm
         );
+        for (uint256 i = 0; i < _student.length; i++) {
+            require(completedAddress[_student[i]], "SC: cancel error");
+            completedAddress[_student[i]] = false;
+        }
 
-        require(completedAddress[_student], "SC: cancel error");
-        completedAddress[_student] = false;
-        emit UnConfirm(_student, block.timestamp);
+        emit UnConfirm(_student.length, block.timestamp);
     }
 
     function close() external override onlyOwner {

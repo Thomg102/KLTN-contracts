@@ -108,21 +108,24 @@ contract TuitionContract is ITuitionContract {
         emit AddStudentToTuition(_students.length, block.timestamp);
     }
 
-    function removeStudentFromTuition(address _student)
+    function removeStudentFromTuition(address[] calldata _students)
         external
         override
         onlyRoleAdmin
     {
-        require(participantToTrue[_student], "Error when remove");
-        require(
-            completedAddress[_student] = false,
-            "This student have completed"
-        );
-        uint256 index = participantToIndex[_student];
-        amount--;
-        participantToTrue[_student] = false;
-        delete participants[index];
-        emit RemoveStudentFromTuition(_student, block.timestamp);
+        for (uint256 i = 0; i < _students.length; i++) {
+            require(participantToTrue[_students[i]], "Error when remove");
+            require(
+                        completedAddress[_students[i]] = false,
+                        "This student have completed"
+                    );
+            uint256 index = participantToIndex[_students[i]];
+            participantToTrue[_students[i]] = false;
+            delete participants[index];
+        }
+        amount-= _students.length;
+
+        emit RemoveStudentFromTuition(_students.length, block.timestamp);
     }
 
     function paymentByToken() external override onlyRoleStudent {

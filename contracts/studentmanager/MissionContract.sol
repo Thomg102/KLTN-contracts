@@ -155,13 +155,13 @@ contract MissionContract is IMissionContract {
                 block.timestamp < mission.endTimeToConfirm
         );
         for (uint256 i = 0; i < _student.length; i++) {
-            require(participantToTrue[_student[i]], "MS: cancel error");
+            require(participantToTrue[_student[i]], "MS: confirm error");
             completedAddress[_student[i]] = true;
         }
         emit Confirm(_student.length, block.timestamp);
     }
 
-    function unConfirmCompletedAddress(address _student)
+    function unConfirmCompletedAddress(address[] calldata _student)
         external
         override
         onlyRoleLecturer
@@ -171,10 +171,12 @@ contract MissionContract is IMissionContract {
             block.timestamp > mission.endTime &&
                 block.timestamp < mission.endTimeToConfirm
         );
+        for (uint256 i = 0; i < _student.length; i++) {
+            require(completedAddress[_student[i]], "MS: confirm error");
+            completedAddress[_student[i]] = false;
+        }
 
-        require(completedAddress[_student], "MS: cancel error");
-        completedAddress[_student] = false;
-        emit UnConfirm(_student, block.timestamp);
+        emit UnConfirm(_student.length, block.timestamp);
     }
 
     function close() external override onlyOwner {

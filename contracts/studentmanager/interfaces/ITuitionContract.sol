@@ -27,7 +27,7 @@ interface ITuitionContract {
     event CreatedNewTuition(uint256 indexed id);
     event Payment(address student, uint256 timestamp, PaymentMethod _method);
     event AddStudentToTuition(uint256 studentsAmount, uint256 timestamp);
-    event RemoveStudentFromTuition(address student, uint256 timestamp);
+    event RemoveStudentFromTuition(uint256 studentsAmount, uint256 timestamp);
     event Close(uint256 timestamp);
 
     function setBasicForTuition(
@@ -42,7 +42,7 @@ interface ITuitionContract {
 
     function addStudentToTuition(address[] memory _students) external;
 
-    function removeStudentFromTuition(address _student) external;
+    function removeStudentFromTuition(address[] memory _students) external;
 
     function paymentByToken() external;
 

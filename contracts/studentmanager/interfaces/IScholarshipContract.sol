@@ -26,7 +26,7 @@ interface IScholarshipContract {
 
     event CreatedNewTuition(uint256 indexed id);
     event AddStudentToScholarship(uint256 studentsAmount, uint256 timestamp);
-    event RemoveStudentFromScholarship(address student, uint256 timestamp);
+    event RemoveStudentFromScholarship(uint256 studentsAmount, uint256 timestamp);
     event Close(uint256 timestamp);
 
     function setBasicForScholarship(
@@ -41,7 +41,7 @@ interface IScholarshipContract {
 
     function addStudentToScholarship(address[] memory _students) external;
 
-    function removeStudentFromScholarship(address _student) external;
+    function removeStudentFromScholarship(address[] memory _students) external;
 
     function close() external;
 
