@@ -88,6 +88,10 @@ contract ScholarshipContract is IScholarshipContract {
         status = Status.Open;
     }
 
+    function lock() external onlyOwner onlyOpen {
+        status = Status.Lock;
+    }
+
     function addStudentToScholarship(address[] calldata _students)
         external
         override
@@ -125,7 +129,7 @@ contract ScholarshipContract is IScholarshipContract {
         emit RemoveStudentFromScholarship(_students.length, block.timestamp);
     }
 
-    function close() external override onlyOwner {
+    function close() external override onlyOwner onlyOpen {
         require(block.timestamp > scholarship.endTime, "Not yet ready");
         status = Status.Close;
         address[] memory student = getParticipantList();

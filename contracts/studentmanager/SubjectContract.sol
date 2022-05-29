@@ -101,8 +101,12 @@ contract SubjectContract is ISubjectContract {
     //     rate[ScoreColumn.CK] = CK;
     // }
 
-    function start() external override onlyOwner {
+    function start() external override onlyOwner onlyOpen {
         status = Status.Open;
+    }
+
+    function lock() external onlyOwner onlyOpen {
+        status = Status.Lock;
     }
 
     function addStudentToSubject(address[] calldata _students)
@@ -195,7 +199,7 @@ contract SubjectContract is ISubjectContract {
         emit UnConfirm(_students.length, block.timestamp);
     }
 
-    function close() external override onlyOwner {
+    function close() external override onlyOwner onlyOpen {
         status = Status.Close;
         require(block.timestamp > subject.endTimeToConfirm);
         emit Close(block.timestamp);

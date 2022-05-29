@@ -88,6 +88,10 @@ contract TuitionContract is ITuitionContract {
         status = Status.Open;
     }
 
+    function lock() external onlyOwner onlyOpen {
+        status = Status.Lock;
+    }
+
     function addStudentToTuition(address[] calldata _students)
         external
         override
@@ -128,7 +132,7 @@ contract TuitionContract is ITuitionContract {
         emit RemoveStudentFromTuition(_students.length, block.timestamp);
     }
 
-    function paymentByToken() external override onlyRoleStudent {
+    function paymentByToken() external override onlyRoleStudent onlyOpen {
         require(participantToTrue[msg.sender], "TC: You are not in list");
         require(!completedAddress[msg.sender], "TC: You paid tuition");
         address UITToken = IRewardDistributor(rewardDistributor)
@@ -149,7 +153,7 @@ contract TuitionContract is ITuitionContract {
         emit Payment(msg.sender, block.timestamp, PaymentMethod.Currency);
     }
 
-    function close() external override onlyOwner {
+    function close() external override onlyOwner onlyOpen {
         status = Status.Close;
         require(block.timestamp > tuition.endTime);
         emit Close(block.timestamp);

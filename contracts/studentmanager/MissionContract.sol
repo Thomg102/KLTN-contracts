@@ -98,6 +98,10 @@ contract MissionContract is IMissionContract {
         status = Status.Open;
     }
 
+    function lock() external onlyOwner onlyOpen {
+        status = Status.Lock;
+    }
+
     function addStudentToMission(address[] calldata _students)
         external
         override
@@ -179,7 +183,7 @@ contract MissionContract is IMissionContract {
         emit UnConfirm(_students.length, block.timestamp);
     }
 
-    function close() external override onlyOwner {
+    function close() external override onlyOwner onlyOpen {
         require(block.timestamp > mission.endTimeToConfirm);
         status = Status.Close;
         address[] memory student = getParticipantListCompleted();
