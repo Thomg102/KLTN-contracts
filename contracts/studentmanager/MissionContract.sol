@@ -194,7 +194,7 @@ contract MissionContract is IMissionContract {
         emit Close(block.timestamp);
     }
 
-    function isReadyToClose() external view returns(bool) {
+    function isReadyToClose() onlyOpen external view returns(bool) {
         return (block.timestamp > mission.endTimeToConfirm);
     }
 

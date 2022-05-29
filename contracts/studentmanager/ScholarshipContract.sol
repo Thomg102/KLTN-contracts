@@ -139,7 +139,7 @@ contract ScholarshipContract is IScholarshipContract {
         emit Close(block.timestamp);
     }
 
-    function isReadyToClose() external view returns(bool) {
+    function isReadyToClose() onlyOpen external view returns(bool) {
         return (block.timestamp > scholarship.endTime);
     }
 

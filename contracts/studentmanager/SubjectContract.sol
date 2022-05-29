@@ -209,7 +209,7 @@ contract SubjectContract is ISubjectContract {
         return (block.timestamp > subject.endTimeToConfirm);
     }
 
-    function getParticipantList() public view returns (address[] memory) {
+    function getParticipantList() onlyOpen public view returns (address[] memory) {
         address[] memory _student = new address[](amount);
         uint256 index;
         for (uint256 i = 0; i < student.length; i++) {
