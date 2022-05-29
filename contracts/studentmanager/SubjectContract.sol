@@ -205,6 +205,10 @@ contract SubjectContract is ISubjectContract {
         emit Close(block.timestamp);
     }
 
+    function isReadyToClose() external view returns(bool) {
+        return (block.timestamp > subject.endTimeToConfirm);
+    }
+
     function getParticipantList() public view returns (address[] memory) {
         address[] memory _student = new address[](amount);
         uint256 index;
