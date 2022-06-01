@@ -32,6 +32,7 @@ contract Marketplace is
     IActiveNFT public activeNFT;
 
     bytes32 internal constant ADMIN_ROLE = keccak256("ADMIN");
+    bytes32 internal constant STUDENT_ROLE = keccak256("STUDENT");
 
     mapping(uint256 => mapping(address => SaleInfo)) public itemsForSale;
 
@@ -73,6 +74,14 @@ contract Marketplace is
         _;
     }
 
+    modifier onlyStudent() {
+        require(
+            IAccessControl(accessControl).hasRole(STUDENT_ROLE, msg.sender),
+            "Marketplace: Only student can call this function"
+        );
+        _;
+    }
+
     /** USER
      * @dev Seller lists a item on sale
      * @param _itemId itemId
@@ -83,7 +92,7 @@ contract Marketplace is
         uint256 _itemId,
         uint256 _oneItemPrice,
         uint256 _amount
-    ) external override whenNotPaused nonReentrant {
+    ) external override whenNotPaused nonReentrant onlyStudent {
         require(_oneItemPrice > 0, "Marketplace: price is zero");
         require(_amount > 0, "Marketplace: amount is zero");
         require(
@@ -121,6 +130,7 @@ contract Marketplace is
         override
         whenNotPaused
         nonReentrant
+        onlyStudent
     {
         address seller = msg.sender;
         SaleInfo storage sale = itemsForSale[_itemId][seller];
@@ -170,7 +180,7 @@ contract Marketplace is
         uint256 _itemId,
         address _seller,
         uint256 _amount
-    ) external override whenNotPaused nonReentrant {
+    ) external override whenNotPaused nonReentrant onlyStudent {
         SaleInfo storage sale = itemsForSale[_itemId][_seller];
         address buyer = msg.sender;
         uint256 oneItemPrice = sale.oneItemPrice;
@@ -216,7 +226,7 @@ contract Marketplace is
         NFTInfo memory _nftInfo,
         uint256 _oneItemPrice,
         uint256 _amount
-    ) external override onlyAdmin whenNotPaused nonReentrant {
+    ) external override whenNotPaused nonReentrant onlyAdmin {
         require(_oneItemPrice > 0, "Marketplace: price must not be zero");
         require(_amount > 0, "Marketplace: amount must not be zero");
         IUITNFTToken(UITNFT).createNFT(_nftInfo);
@@ -250,9 +260,9 @@ contract Marketplace is
     function updateAmountNFT(uint256 _itemId, uint256 _amount)
         external
         override
-        onlyAdmin
         whenNotPaused
         nonReentrant
+        onlyAdmin
     {
         SaleInfo storage sale = itemsForSale[_itemId][msg.sender];
         bool isSale = sale.isActive;
@@ -269,6 +279,7 @@ contract Marketplace is
         external
         whenNotPaused
         nonReentrant
+        onlyStudent
     {
         activeNFT.requestActiveNFT(_itemId, _amount);
     }
@@ -277,15 +288,16 @@ contract Marketplace is
         external
         whenNotPaused
         nonReentrant
+        onlyStudent
     {
         activeNFT.cancelRequestActiveNFT(_activeId);
     }
 
     function activeNFTByAdmin(uint256 _activeId)
         external
-        onlyAdmin
         whenNotPaused
         nonReentrant
+        onlyAdmin
     {
         activeNFT.activeNFT(_activeId);
     }
