@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./interfaces/IMarketplace.sol";
-import "../activeNFT/interfaces/IActiveNFT.sol";
+import "../activateNFT/interfaces/IActivateNFT.sol";
 import "../studentmanager/interfaces/IAccessControl.sol";
 import "../token/interfaces/IUITNFTToken.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -29,7 +29,7 @@ contract Marketplace is
     address public immutable UITToken;
     address public immutable UITNFT;
     address public immutable rewardDistributor;
-    IActiveNFT public activeNFT;
+    IActivateNFT public activateNFT;
 
     bytes32 internal constant ADMIN_ROLE = keccak256("ADMIN");
     bytes32 internal constant STUDENT_ROLE = keccak256("STUDENT");
@@ -41,7 +41,7 @@ contract Marketplace is
         address _UITToken,
         address _UITNFT,
         address _rewardDistributor,
-        IActiveNFT _activeNFT
+        IActivateNFT _activateNFT
     ) {
         require(
             _accessControl != address(0),
@@ -63,7 +63,7 @@ contract Marketplace is
         UITToken = _UITToken;
         UITNFT = _UITNFT;
         rewardDistributor = _rewardDistributor;
-        activeNFT = _activeNFT;
+        activateNFT = _activateNFT;
     }
 
     modifier onlyAdmin() {
@@ -134,7 +134,7 @@ contract Marketplace is
     {
         address seller = msg.sender;
         SaleInfo storage sale = itemsForSale[_itemId][seller];
-        require(sale.isActive, "Marketplace: Sale inactive or already sold");
+        require(sale.isActive, "Marketplace: Sale inactivate or already sold");
 
         uint256 amount = sale.amount;
         sale.isActive = false;
@@ -186,7 +186,7 @@ contract Marketplace is
         uint256 oneItemPrice = sale.oneItemPrice;
         uint256 price = _amount * oneItemPrice;
 
-        require(sale.isActive, "Marketplace: Sale inactive or already sold");
+        require(sale.isActive, "Marketplace: Sale inactivate or already sold");
         require(
             _amount <= sale.amount,
             "Marketplace: Not enough amount to sell"
@@ -275,39 +275,39 @@ contract Marketplace is
         emit AdminItemAmountUpdated(_itemId, _amount, msg.sender);
     }
 
-    function requestActiveNFT(uint256 _itemId, uint256 _amount)
+    function requestActivateNFT(uint256 _itemId, uint256 _amount)
         external
         whenNotPaused
         nonReentrant
         onlyStudent
     {
-        activeNFT.requestActiveNFT(_itemId, _amount);
+        activateNFT.requestActivateNFT(_itemId, _amount);
     }
 
-    function cancelRequestActiveNFT(uint256 _activeId)
+    function cancelRequestActivateNFT(uint256 _activateId)
         external
         whenNotPaused
         nonReentrant
         onlyStudent
     {
-        activeNFT.cancelRequestActiveNFT(_activeId);
+        activateNFT.cancelRequestActivateNFT(_activateId);
     }
 
-    function activeNFTByAdmin(uint256 _activeId)
+    function activateNFTByAdmin(uint256 _activateId)
         external
         whenNotPaused
         nonReentrant
         onlyAdmin
     {
-        activeNFT.activeNFT(_activeId);
+        activateNFT.activateNFT(_activateId);
     }
 
     function setAccessControl(address _accessControl) external onlyOwner {
         accessControl = _accessControl;
     }
 
-    function setActiveNFT(IActiveNFT _activeNFT) external onlyOwner {
-        activeNFT = _activeNFT;
+    function setActivateNFT(IActivateNFT _activateNFT) external onlyOwner {
+        activateNFT = _activateNFT;
     }
 
     /**
