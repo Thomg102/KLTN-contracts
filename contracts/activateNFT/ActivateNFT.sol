@@ -69,7 +69,7 @@ contract ActivateNFT is
      * @param _itemId itemId
      * @param _amount amount of item want to activate
      */
-    function requestActivateNFT(uint256 _itemId, uint256 _amount)
+    function requestActivateNFT(uint _itemId, uint _amount)
         external
         override
         whenNotPaused
@@ -80,7 +80,7 @@ contract ActivateNFT is
             IERC1155(UITNFT).balanceOf(msg.sender, _itemId) >= _amount,
             "ActivateNFT: Balance of items less than amount"
         );
-        uint256 activateId = activateInfoList.length;
+        uint activateId = activateInfoList.length;
         ActivateInfo memory activateInfo = ActivateInfo(
             activateId,
             msg.sender,
@@ -125,85 +125,88 @@ contract ActivateNFT is
 
     /** USER
      * @dev cancel request activate NFT
-     * @param _activateId itemId
+     * @param _activateIds itemId arrays
      */
-    function cancelRequestActivateNFT(uint256 _activateId)
+    function cancelRequestActivateNFT(uint[] memory _activateIds)
         external
         override
         whenNotPaused
         nonReentrant
     {
-        ActivateInfo storage activateInfo = activateInfoList[_activateId];
-        require(
-            activateInfo.ownerOfRequest == msg.sender,
-            "ActivateNFT: Not owner of request"
-        );
-        require(
-            activateInfo.isRequested,
-            "ActivateNFT: activateInfo is not requested"
-        );
-        require(
-            !activateInfo.isActivate,
-            "ActivateNFT: activateInfo is already activated"
-        );
-        uint256 itemId = activateInfo.itemId;
+        for (uint i = 0; i < _activateIds.length; i++){
+            ActivateInfo storage activateInfo = activateInfoList[_activateIds[i]];
+            require(
+                activateInfo.ownerOfRequest == msg.sender,
+                "ActivateNFT: Not owner of request"
+            );
+            require(
+                activateInfo.isRequested,
+                "ActivateNFT: activateInfo is not requested"
+            );
+            require(
+                !activateInfo.isActivate,
+                "ActivateNFT: activateInfo is already activated"
+            );
 
-        activateInfo.isRequested = false;
-        IERC1155(UITNFT).safeTransferFrom(
-            address(this),
-            msg.sender,
-            itemId,
-            activateInfo.amount,
-            ""
-        );
+            activateInfo.isRequested = false;
+            IERC1155(UITNFT).safeTransferFrom(
+                address(this),
+                msg.sender,
+                activateInfo.itemId,
+                activateInfo.amount,
+                ""
+            );
+        }
 
-        emit ActivateNFTRequestCanceled(_activateId, block.timestamp);
+        emit ActivateNFTRequestCanceled(_activateIds, block.timestamp);
     }
 
     /** ADMIN
      * @dev activate NFT
-     * @param _activateId itemId
+     * @param _activateIds itemId arrays
      */
-    function activateNFT(uint256 _activateId)
+    function activateNFT(uint[] memory _activateIds)
         external
         override
         onlyMarketplace
         whenNotPaused
         nonReentrant
     {
-        ActivateInfo storage activateInfo = activateInfoList[_activateId];
-        require(
-            activateInfo.isRequested,
-            "ActivateNFT: activateInfo is not requested"
-        );
-        require(
-            activateInfo.isActivate,
-            "ActivateNFT: activateInfo is already activated"
-        );
-        uint256 itemId = activateInfo.itemId;
-
-        activateInfo.isActivate = true;
-        activateInfo.activatedTime = block.timestamp;
-
-        NFTInfo memory nftInfo = IUITNFTToken(UITNFT).getNFTInfo(itemId);
-        if (nftInfo.isCourseNFT)
-            emit NFTActivated(
-                _activateId,
-                itemId,
-                activateInfo.amount,
-                block.timestamp,
-                msg.sender,
-                true
+        for (uint i = 0; i < _activateIds.length; i++){
+            ActivateInfo storage activateInfo = activateInfoList[_activateIds[i]];
+            require(
+                activateInfo.isRequested,
+                "ActivateNFT: activateInfo is not requested"
             );
-        else
-            emit NFTActivated(
-                _activateId,
-                itemId,
-                activateInfo.amount,
-                block.timestamp,
-                msg.sender,
-                false
+            require(
+                activateInfo.isActivate,
+                "ActivateNFT: activateInfo is already activated"
             );
+            uint itemId = activateInfo.itemId;
+
+            activateInfo.isActivate = true;
+            activateInfo.activatedTime = block.timestamp;
+
+            NFTInfo memory nftInfo = IUITNFTToken(UITNFT).getNFTInfo(itemId);
+            if (nftInfo.isCourseNFT)
+                emit NFTActivated(
+                    _activateIds[i],
+                    itemId,
+                    activateInfo.amount,
+                    block.timestamp,
+                    msg.sender,
+                    true
+                );
+            else
+                emit NFTActivated(
+                    _activateIds[i],
+                    itemId,
+                    activateInfo.amount,
+                    block.timestamp,
+                    msg.sender,
+                    false
+                );
+        }
     }
 
     function setAccessControl(address _accessControl) external onlyOwner {

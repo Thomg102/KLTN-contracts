@@ -16,10 +16,10 @@ interface IActivateNFT is ISharedStruct {
     }
 
     event ActivateNFTRequested(uint _activateId, uint _itemId, uint _amount, uint _requestedTime, address _owner);
-    event ActivateNFTRequestCanceled(uint _activateId, uint _cancelRequestTime);
+    event ActivateNFTRequestCanceled(uint[] _activateIds, uint _cancelRequestTime);
     event NFTActivated(uint _activateId, uint _itemId, uint _amount, uint _activatedTime, address _owner, bool _isCourseNFT);
 
     function requestActivateNFT(uint _itemId, uint _amount) external;
-    function cancelRequestActivateNFT(uint _activateId) external;
-    function activateNFT(uint _activateId) external;
+    function cancelRequestActivateNFT(uint[] memory _activateIds) external;
+    function activateNFT(uint[] memory _activateIds) external;
 }
