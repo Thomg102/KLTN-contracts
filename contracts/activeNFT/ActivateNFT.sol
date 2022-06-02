@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./interfaces/IActiveNFT.sol";
+import "./interfaces/IActivateNFT.sol";
 import "../studentmanager/interfaces/IAccessControl.sol";
 import "../token/interfaces/IUITNFTToken.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -14,8 +14,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract ActiveNFT is
-    IActiveNFT,
+contract ActivateNFT is
+    IActivateNFT,
     Pausable,
     Ownable,
     ReentrancyGuard,
@@ -30,16 +30,16 @@ contract ActiveNFT is
 
     bytes32 internal constant ADMIN_ROLE = keccak256("ADMIN");
 
-    ActiveInfo[] public activeInfoList;
+    ActivateInfo[] public activateInfoList;
 
     constructor(address _accessControl, address _UITNFT) {
         require(
             _accessControl != address(0),
-            "ActiveNFT: Access control contract cannot be 0"
+            "ActivateNFT: Access control contract cannot be 0"
         );
         require(
             _UITNFT != address(0),
-            "ActiveNFT: UITNFToken must not be address 0"
+            "ActivateNFT: UITNFToken must not be address 0"
         );
         UITNFT = _UITNFT;
     }
@@ -65,24 +65,24 @@ contract ActiveNFT is
     }
 
     /** USER
-     * @dev Requset to activeNFT
+     * @dev Requset to activateNFT
      * @param _itemId itemId
-     * @param _amount amount of item want to active
+     * @param _amount amount of item want to activate
      */
-    function requestActiveNFT(uint256 _itemId, uint256 _amount)
+    function requestActivateNFT(uint256 _itemId, uint256 _amount)
         external
         override
         whenNotPaused
         nonReentrant
     {
-        require(_amount > 0, "ActiveNFT: amount is zero");
+        require(_amount > 0, "ActivateNFT: amount is zero");
         require(
             IERC1155(UITNFT).balanceOf(msg.sender, _itemId) >= _amount,
-            "ActiveNFT: Balance of items less than amount"
+            "ActivateNFT: Balance of items less than amount"
         );
-        uint256 activeId = activeInfoList.length;
-        ActiveInfo memory activeInfo = ActiveInfo(
-            activeId,
+        uint256 activateId = activateInfoList.length;
+        ActivateInfo memory activateInfo = ActivateInfo(
+            activateId,
             msg.sender,
             _itemId,
             _amount,
@@ -94,10 +94,10 @@ contract ActiveNFT is
         NFTInfo memory nftInfo = IUITNFTToken(UITNFT).getNFTInfo(_itemId);
 
         if (nftInfo.isCourseNFT) {
-            activeInfo.isRequested = true;
+            activateInfo.isRequested = true;
 
-            emit NFTActived(
-                activeId + 1,
+            emit NFTActivated(
+                activateId + 1,
                 _itemId,
                 _amount,
                 block.timestamp,
@@ -105,14 +105,14 @@ contract ActiveNFT is
                 true
             );
         } else
-            emit ActiveNFTRequested(
+            emit ActivateNFTRequested(
                 _itemId,
                 _amount,
                 block.timestamp,
                 msg.sender
             );
 
-        activeInfoList.push(activeInfo);
+        activateInfoList.push(activateInfo);
         IERC1155(UITNFT).safeTransferFrom(
             msg.sender,
             address(this),
@@ -123,82 +123,82 @@ contract ActiveNFT is
     }
 
     /** USER
-     * @dev cancel request active NFT
-     * @param _activeId itemId
+     * @dev cancel request activate NFT
+     * @param _activateId itemId
      */
-    function cancelRequestActiveNFT(uint256 _activeId)
+    function cancelRequestActivateNFT(uint256 _activateId)
         external
         override
         whenNotPaused
         nonReentrant
     {
-        ActiveInfo storage activeInfo = activeInfoList[_activeId];
+        ActivateInfo storage activateInfo = activateInfoList[_activateId];
         require(
-            activeInfo.ownerOfRequest == msg.sender,
-            "ActiveNFT: Not owner of request"
+            activateInfo.ownerOfRequest == msg.sender,
+            "ActivateNFT: Not owner of request"
         );
         require(
-            activeInfo.isRequested,
-            "ActiveNFT: activeInfo is not requested"
+            activateInfo.isRequested,
+            "ActivateNFT: activateInfo is not requested"
         );
         require(
-            !activeInfo.isActive,
-            "ActiveNFT: activeInfo is already actived"
+            !activateInfo.isActivate,
+            "ActivateNFT: activateInfo is already activated"
         );
-        uint256 itemId = activeInfo.itemId;
+        uint256 itemId = activateInfo.itemId;
 
-        activeInfo.isRequested = false;
+        activateInfo.isRequested = false;
         IERC1155(UITNFT).safeTransferFrom(
             address(this),
             msg.sender,
             itemId,
-            activeInfo.amount,
+            activateInfo.amount,
             ""
         );
 
-        emit ActiveNFTRequestCanceled(_activeId, block.timestamp);
+        emit ActivateNFTRequestCanceled(_activateId, block.timestamp);
     }
 
     /** ADMIN
-     * @dev active NFT
-     * @param _activeId itemId
+     * @dev activate NFT
+     * @param _activateId itemId
      */
-    function activeNFT(uint256 _activeId)
+    function activateNFT(uint256 _activateId)
         external
         override
         onlyMarketplace
         whenNotPaused
         nonReentrant
     {
-        ActiveInfo storage activeInfo = activeInfoList[_activeId];
+        ActivateInfo storage activateInfo = activateInfoList[_activateId];
         require(
-            activeInfo.isRequested,
-            "ActiveNFT: activeInfo is not requested"
+            activateInfo.isRequested,
+            "ActivateNFT: activateInfo is not requested"
         );
         require(
-            activeInfo.isActive,
-            "ActiveNFT: activeInfo is already actived"
+            activateInfo.isActivate,
+            "ActivateNFT: activateInfo is already activated"
         );
-        uint256 itemId = activeInfo.itemId;
+        uint256 itemId = activateInfo.itemId;
 
-        activeInfo.isActive = true;
-        activeInfo.activedTime = block.timestamp;
+        activateInfo.isActivate = true;
+        activateInfo.activatedTime = block.timestamp;
 
         NFTInfo memory nftInfo = IUITNFTToken(UITNFT).getNFTInfo(itemId);
         if (nftInfo.isCourseNFT)
-            emit NFTActived(
-                _activeId,
+            emit NFTActivated(
+                _activateId,
                 itemId,
-                activeInfo.amount,
+                activateInfo.amount,
                 block.timestamp,
                 msg.sender,
                 true
             );
         else
-            emit NFTActived(
-                _activeId,
+            emit NFTActivated(
+                _activateId,
                 itemId,
-                activeInfo.amount,
+                activateInfo.amount,
                 block.timestamp,
                 msg.sender,
                 false
