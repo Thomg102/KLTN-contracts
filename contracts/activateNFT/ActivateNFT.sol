@@ -106,6 +106,7 @@ contract ActivateNFT is
             );
         } else
             emit ActivateNFTRequested(
+                activateId + 1,
                 _itemId,
                 _amount,
                 block.timestamp,

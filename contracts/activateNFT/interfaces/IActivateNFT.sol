@@ -15,7 +15,7 @@ interface IActivateNFT is ISharedStruct {
         bool isActivate;
     }
 
-    event ActivateNFTRequested(uint _itemId, uint _amount, uint _requestedTime, address _owner);
+    event ActivateNFTRequested(uint _activateId, uint _itemId, uint _amount, uint _requestedTime, address _owner);
     event ActivateNFTRequestCanceled(uint _activateId, uint _cancelRequestTime);
     event NFTActivated(uint _activateId, uint _itemId, uint _amount, uint _activatedTime, address _owner, bool _isCourseNFT);
 
