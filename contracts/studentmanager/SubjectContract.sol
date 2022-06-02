@@ -69,9 +69,9 @@ contract SubjectContract is ISubjectContract {
         uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
         require(
-            block.timestamp < _startTime &&
-                _startTime < _endTimeToRegister &&
-                _endTimeToRegister < _endTime &&
+            block.timestamp < _endTimeToRegister &&
+                _endTimeToRegister < _startTime &&
+                _startTime < _endTime &&
                 _endTime < _endTimeToConfirm,
             "SC: Time is invalid"
         );
@@ -101,7 +101,7 @@ contract SubjectContract is ISubjectContract {
     //     rate[ScoreColumn.CK] = CK;
     // }
 
-    function start() external override onlyOwner onlyOpen {
+    function start() external override onlyOwner onlyLock {
         status = Status.Open;
     }
 
@@ -205,11 +205,16 @@ contract SubjectContract is ISubjectContract {
         emit Close(block.timestamp);
     }
 
-    function isReadyToClose() external view returns(bool) {
+    function isReadyToClose() external view returns (bool) {
         return (block.timestamp > subject.endTimeToConfirm);
     }
 
-    function getParticipantList() onlyOpen public view returns (address[] memory) {
+    function getParticipantList()
+        public
+        view
+        onlyOpen
+        returns (address[] memory)
+    {
         address[] memory _student = new address[](amount);
         uint256 index;
         for (uint256 i = 0; i < student.length; i++) {
