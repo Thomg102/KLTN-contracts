@@ -284,22 +284,22 @@ contract Marketplace is
         activateNFT.requestActivateNFT(_itemId, _amount);
     }
 
-    function cancelRequestActivateNFT(uint256 _activateId)
+    function cancelRequestActivateNFT(uint256[] memory _activateIds)
         external
         whenNotPaused
         nonReentrant
         onlyStudent
     {
-        activateNFT.cancelRequestActivateNFT(_activateId);
+        activateNFT.cancelRequestActivateNFT(_activateIds);
     }
 
-    function activateNFTByAdmin(uint256 _activateId)
+    function activateNFTByAdmin(uint256[] memory _activateIds)
         external
         whenNotPaused
         nonReentrant
         onlyAdmin
     {
-        activateNFT.activateNFT(_activateId);
+        activateNFT.activateNFT(_activateIds);
     }
 
     function setAccessControl(address _accessControl) external onlyOwner {
