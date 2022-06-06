@@ -54,6 +54,8 @@ interface ISubjectContract {
 
     function start() external;
 
+    function lock() external;
+
     // function setScoreColumn(
     //     uint256 QT,
     //     uint256 GK,

@@ -88,7 +88,7 @@ contract TuitionContract is ITuitionContract {
         status = Status.Open;
     }
 
-    function lock() external onlyOwner onlyOpen {
+    function lock() external override onlyOwner onlyOpen {
         status = Status.Lock;
     }
 

@@ -40,6 +40,8 @@ interface ITuitionContract {
 
     function start() external;
 
+    function lock() external;
+
     function addStudentToTuition(address[] memory _students) external;
 
     function removeStudentFromTuition(address[] memory _students) external;

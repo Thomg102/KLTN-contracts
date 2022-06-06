@@ -72,6 +72,12 @@ contract ManagerPool is Ownable {
     event NewScholarship(string _urlMetadata);
     event NewSubject(string _urlMetadata);
     event NewTuition(string _urlMetadata);
+    event TuitionLocked(address[] _listTuitions);
+    event SubjectLocked(address[] _listSubjects);
+    event MissionLocked(address[] _listMissions);
+    event ScholarshipLocked(address[] _listScholarships);
+    event StudentRoleRevoked(address[] studentAddrs);
+    event LecturerRoleRevoked(address[] lecturerAddrs);
 
     function setFactory(address _factory) public onlyOwner {
         factory = IFactory(_factory);
@@ -84,6 +90,17 @@ contract ManagerPool is Ownable {
         studentInfo[studentAddr] = hashInfo;
         accessControll.grantRole(keccak256("STUDENT"), studentAddr);
         emit AddStudentInfo(studentAddr, hashInfo);
+    }
+
+    function revokeStudentRole(address[] memory studentAddrs)
+        public
+        onlyRoleAdmin
+    {
+        for (uint i = 0; i < studentAddrs.length; i++) {
+            accessControll.revokeRole(keccak256("STUDENT"), studentAddrs[i]);
+        }
+
+        emit StudentRoleRevoked(studentAddrs);
     }
 
     function update(address studentAdress, string memory hash)
@@ -107,6 +124,17 @@ contract ManagerPool is Ownable {
         lecturerInfo[lecturerAddr] = hashInfo;
         accessControll.grantRole(keccak256("LECTURER"), lecturerAddr);
         emit AddLecturerInfo(lecturerAddr, hashInfo);
+    }
+
+    function revokeLecturerRole(address[] memory lecturerAddrs)
+        public
+        onlyRoleAdmin
+    {
+        for (uint i = 0; i < lecturerAddrs.length; i++) {
+            accessControll.revokeRole(keccak256("LECTURER"), lecturerAddrs[i]);
+        }
+
+        emit LecturerRoleRevoked(lecturerAddrs);
     }
 
     function createNewMission(
@@ -235,5 +263,37 @@ contract ManagerPool is Ownable {
     function _removeDistributor(address pool) private onlyRoleAdmin {
         require(existed[pool]);
         rewardDistributor.removeDistributorsAddress(pool);
+    }
+
+    function lockTuition(address[] memory _listTuitions) external onlyRoleAdmin {
+        for (uint i = 0; i < _listTuitions.length; i++) {
+            require(existed[_listTuitions[i]]);
+            ITuitionContract(_listTuitions[i]).lock();
+        }
+        emit TuitionLocked(_listTuitions);
+    }
+
+    function lockSubject(address[] memory _listSubjects) external onlyRoleAdmin {
+        for (uint i = 0; i < _listSubjects.length; i++) {
+            require(existed[_listSubjects[i]]);
+            ISubjectContract(_listSubjects[i]).lock();
+        }
+        emit SubjectLocked(_listSubjects);
+    }
+
+    function lockScholarship(address[] memory _listScholarships) external onlyRoleAdmin {
+        for (uint i = 0; i < _listScholarships.length; i++) {
+            require(existed[_listScholarships[i]]);
+            IScholarshipContract(_listScholarships[i]).lock();
+        }
+        emit ScholarshipLocked(_listScholarships);
+    }
+
+    function lockMission(address[] memory _listMissions) external onlyRoleAdmin {
+        for (uint i = 0; i < _listMissions.length; i++) {
+            require(existed[_listMissions[i]]);
+            IMissionContract(_listMissions[i]).lock();
+        }
+        emit MissionLocked(_listMissions);
     }
 }
