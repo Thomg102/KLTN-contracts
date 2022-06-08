@@ -101,6 +101,7 @@ contract Marketplace is
         );
         SaleInfo memory saleInfo = itemsForSale[_itemId][msg.sender];
         require(!saleInfo.isActive, "Marketplace: Item is already listed");
+        require(saleInfo.amount == 0, "Marketplace: Item is already listed");
 
         itemsForSale[_itemId][msg.sender] = SaleInfo(
             true,
