@@ -101,6 +101,7 @@ contract Marketplace is
         );
         SaleInfo memory saleInfo = itemsForSale[_itemId][msg.sender];
         require(!saleInfo.isActive, "Marketplace: Item is already listed");
+        require(saleInfo.amount == 0, "Marketplace: Item is already listed");
 
         itemsForSale[_itemId][msg.sender] = SaleInfo(
             true,
@@ -284,22 +285,22 @@ contract Marketplace is
         activateNFT.requestActivateNFT(_itemId, _amount);
     }
 
-    function cancelRequestActivateNFT(uint256[] memory _activateId)
+    function cancelRequestActivateNFT(uint256[] memory _activateIds)
         external
         whenNotPaused
         nonReentrant
         onlyStudent
     {
-        activateNFT.cancelRequestActivateNFT(_activateId);
+        activateNFT.cancelRequestActivateNFT(_activateIds);
     }
 
-    function activateNFTByAdmin(uint256[] memory _activateId)
+    function activateNFTByAdmin(uint256[] memory _activateIds)
         external
         whenNotPaused
         nonReentrant
         onlyAdmin
     {
-        activateNFT.activateNFT(_activateId);
+        activateNFT.activateNFT(_activateIds);
     }
 
     function setAccessControl(address _accessControl) external onlyOwner {

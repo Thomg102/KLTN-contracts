@@ -43,6 +43,8 @@ interface IMissionContract {
     ) external;
 
     function start() external;
+    
+    function lock() external;
 
     function addStudentToMission(address[] memory _students) external;
 

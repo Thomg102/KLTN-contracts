@@ -39,6 +39,8 @@ interface IScholarshipContract {
 
     function start() external;
 
+    function lock() external;
+
     function addStudentToScholarship(address[] memory _students) external;
 
     function removeStudentFromScholarship(address[] memory _students) external;

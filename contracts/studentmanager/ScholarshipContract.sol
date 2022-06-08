@@ -88,7 +88,7 @@ contract ScholarshipContract is IScholarshipContract {
         status = Status.Open;
     }
 
-    function lock() external onlyOwner onlyOpen {
+    function lock() external override onlyOwner onlyOpen {
         status = Status.Lock;
     }
 
