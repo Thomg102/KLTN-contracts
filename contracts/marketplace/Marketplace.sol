@@ -284,7 +284,7 @@ contract Marketplace is
         activateNFT.requestActivateNFT(_itemId, _amount);
     }
 
-    function cancelRequestActivateNFT(uint256 _activateId)
+    function cancelRequestActivateNFT(uint256[] memory _activateId)
         external
         whenNotPaused
         nonReentrant
@@ -293,7 +293,7 @@ contract Marketplace is
         activateNFT.cancelRequestActivateNFT(_activateId);
     }
 
-    function activateNFTByAdmin(uint256 _activateId)
+    function activateNFTByAdmin(uint256[] memory _activateId)
         external
         whenNotPaused
         nonReentrant

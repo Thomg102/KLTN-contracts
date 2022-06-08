@@ -24,10 +24,15 @@ module.exports = async (deployer, network, accounts) => {
 		const accounts = await web3.eth.getAccounts();
 		try {
 			await instance.addOperator(MarketplaceInstance.address, { from: accounts[0] });
-			console.log("Set setManagerPoolPermission for RewardDistributor successful!");
+			
 		} catch {
-			console.log("Something with wrong when set MarketPlace as an operator for UITNFTToken");
+			
 		}
+		try {
+			await instance.addOperator(config.ACTIVE_NFT_ADDRESS, { from: accounts[0] });
+			
+		} catch {
+		
 	});
 
 	config.MARKETPLACE_ADDRESS = MarketplaceInstance.address;

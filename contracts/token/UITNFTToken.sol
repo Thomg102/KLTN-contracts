@@ -48,11 +48,11 @@ contract UITNFTToken is ERC1155SupplyUpgradeable, OperatableUpgradeable, IUITNFT
         emit NFTInfoUpdated(_id, _nftInfo);
     }
 
-    function getNFTInfo(uint _id) external view override onlyOperator returns(NFTInfo memory) {
+    function getNFTInfo(uint _id) external view override returns(NFTInfo memory) {
         return nftInfo[_id];
     }
 
-    function getIdIndex() external view override onlyOperator returns(uint) {
+    function getIdIndex() external view override returns(uint) {
         return idIndex.current();
     }
 
