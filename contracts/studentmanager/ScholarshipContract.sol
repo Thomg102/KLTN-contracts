@@ -11,13 +11,13 @@ contract ScholarshipContract is IScholarshipContract {
     Scholarship public scholarship;
     Status public status = Status.Lock;
 
-    address public UITToken;
     IAccessControl public accessControll;
     IRewardDistributor public rewardDistributor;
 
     address[] public participants;
     uint256 public amount;
-    mapping(address => uint256) public participantToIndex;
+    mapping(address => bool) public addressIsExist;
+    mapping(address => bool) public completedAddress;
     mapping(address => bool) public participantToTrue;
 
     modifier onlyLock() {
@@ -32,6 +32,14 @@ contract ScholarshipContract is IScholarshipContract {
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only Owner");
+        _;
+    }
+
+    modifier onlyRoleLecturer() {
+        require(
+            accessControll.hasRole(keccak256("LECTURER"), msg.sender),
+            "SC: Only Lecturer"
+        );
         _;
     }
 
@@ -66,21 +74,30 @@ contract ScholarshipContract is IScholarshipContract {
         string memory _scholarshipId,
         string memory _urlMetadata,
         uint256 _award,
+        address _persionInCharge,
         uint256 _startTime,
-        uint256 _endTime
+        uint256 _endTime,
+        uint256 _endTimeToRegister,
+        uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
         require(_award > 0, "SC: Award should greater than Zero");
         require(
-            block.timestamp < _startTime && _startTime < _endTime,
-            "SC: Time is invalid"
+            block.timestamp < _startTime &&
+                _startTime < _endTimeToRegister &&
+                _endTimeToRegister < _endTime &&
+                _endTime < _endTimeToConfirm,
+            "MS: Time is invalid"
         );
 
         scholarship = Scholarship(
             _scholarshipId,
             _urlMetadata,
             _award,
+            _persionInCharge,
             _startTime,
-            _endTime
+            _endTimeToRegister,
+            _endTime,
+            _endTimeToConfirm
         );
     }
 
@@ -98,43 +115,87 @@ contract ScholarshipContract is IScholarshipContract {
         onlyRoleAdmin
         onlyOpen
     {
+        require(
+            msg.sender == scholarship.persionInCharge,
+            "SC: Only the person in charge"
+        );
         for (uint256 i = 0; i < _students.length; i++) {
             require(
                 accessControll.hasRole(keccak256("STUDENT"), _students[i]),
                 "Should only add student"
             );
-            require(!participantToTrue[_students[i]], "Added");
-            participants.push(_students[i]);
-            participantToIndex[_students[i]] = participants.length - 1;
-            participantToTrue[_students[i]] = true;
-            amount++;
+            _register(_students[i]);
         }
-
-        emit AddStudentToScholarship(_students.length, block.timestamp);
     }
 
-    function removeStudentFromScholarship(address[] calldata _students)
+    function register() external override onlyRoleStudent onlyOpen {
+        _register(msg.sender);
+    }
+
+    function _register(address _student) private {
+        require(
+            block.timestamp <= scholarship.endTimeToRegister,
+            "Expired time to register"
+        );
+        require(!participantToTrue[_student], "SC: register error");
+        amount++;
+        if (!addressIsExist[_student]) {
+            participants.push(_student);
+        }
+        addressIsExist[_student] = true;
+        participantToTrue[_student] = true;
+        emit Register(_student);
+    }
+
+    function cancelRegister() external override onlyRoleStudent onlyOpen {
+        require(participantToTrue[msg.sender], "SC: cancel error");
+        amount--;
+        participantToTrue[msg.sender] = false;
+        emit CancelRegister(msg.sender);
+    }
+
+    function confirmCompletedAddress(address[] calldata _students)
         external
         override
-        onlyRoleAdmin
+        onlyRoleLecturer
+        onlyOpen
     {
+        require(
+            block.timestamp > scholarship.endTime &&
+                block.timestamp < scholarship.endTimeToConfirm
+        );
         for (uint256 i = 0; i < _students.length; i++) {
-            require(participantToTrue[_students[i]], "Error when remove");
-            uint256 index = participantToIndex[_students[i]];
-            participantToTrue[_students[i]] = false;
-            delete participants[index];
+            require(participantToTrue[_students[i]], "MS: confirm error");
+            completedAddress[_students[i]] = true;
         }
-        amount-= _students.length;
+        emit Confirm(_students.length, block.timestamp);
+    }
 
-        emit RemoveStudentFromScholarship(_students.length, block.timestamp);
+    function unConfirmCompletedAddress(address[] calldata _students)
+        external
+        override
+        onlyRoleLecturer
+        onlyOpen
+    {
+        require(
+            block.timestamp > scholarship.endTime &&
+                block.timestamp < scholarship.endTimeToConfirm
+        );
+        for (uint256 i = 0; i < _students.length; i++) {
+            require(completedAddress[_students[i]], "MS: confirm error");
+            completedAddress[_students[i]] = false;
+        }
+
+        emit UnConfirm(_students.length, block.timestamp);
     }
 
     function close() external override onlyOwner onlyOpen {
-        require(block.timestamp > scholarship.endTime, "Not yet ready");
+        require(block.timestamp > scholarship.endTimeToConfirm);
         status = Status.Close;
-        address[] memory student = getParticipantList();
-        for (uint256 i = 0; i < amount; i++) {
-            rewardDistributor.distributeReward(student[i], scholarship.award);
+        address[] memory student = getParticipantListCompleted();
+        for (uint256 i = 0; i < student.length; i++) {
+            if (student[i] != address(0))
+                rewardDistributor.distributeReward(student[i], scholarship.award);
         }
         emit Close(block.timestamp);
     }
@@ -143,19 +204,16 @@ contract ScholarshipContract is IScholarshipContract {
         return (block.timestamp > scholarship.endTime);
     }
 
-    function getParticipantList()
+    function getParticipantListCompleted()
         public
         view
         override
         returns (address[] memory)
     {
-        address[] memory student = new address[](participants.length);
+        address[] memory student = new address[](amount);
         uint256 index;
         for (uint256 i = 0; i < participants.length; i++) {
-            if (
-                participantToTrue[participants[i]] &&
-                participants[i] != address(0)
-            ) {
+            if (completedAddress[participants[i]]) {
                 student[index] = participants[i];
                 index++;
             }

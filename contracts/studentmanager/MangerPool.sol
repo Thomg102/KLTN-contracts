@@ -207,8 +207,11 @@ contract ManagerPool is Ownable {
         string memory _urlMetadata,
         string memory _scholarshipId,
         uint256 _award,
+        address _persionInCharge,
         uint256 _startTime,
-        uint256 _endTime
+        uint256 _endTimeToRegister,
+        uint256 _endTime,
+        uint256 _endTimeToConfirm
     ) external onlyRoleAdmin {
         address scholarshipContract = factory.createNewScholarship(
             address(this),
@@ -221,8 +224,11 @@ contract ManagerPool is Ownable {
             _scholarshipId,
             _urlMetadata,
             _award,
+            _persionInCharge,
             _startTime,
-            _endTime
+            _endTimeToRegister,
+            _endTime,
+            _endTimeToConfirm
         );
         IScholarshipContract(scholarshipContract).start();
         rewardDistributor.addDistributorsAddress(scholarshipContract);
