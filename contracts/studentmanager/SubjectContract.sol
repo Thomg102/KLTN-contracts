@@ -69,9 +69,9 @@ contract SubjectContract is ISubjectContract {
         uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
         require(
-            block.timestamp < _endTimeToRegister &&
-                _endTimeToRegister < _startTime &&
-                _startTime < _endTime &&
+            block.timestamp < _startTime &&
+                _startTime < _endTimeToRegister &&
+                _endTimeToRegister < _endTime &&
                 _endTime < _endTimeToConfirm,
             "SC: Time is invalid"
         );

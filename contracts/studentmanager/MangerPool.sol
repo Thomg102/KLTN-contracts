@@ -68,10 +68,10 @@ contract ManagerPool is Ownable {
     event AddStudentInfo(address studentAddr, string hashInfo);
     event UpdateStudentInfo(address studentAddr, string hashInfo);
     event AddLecturerInfo(address lecturerAddr, string hashInfo);
-    event NewMission(string _urlMetadata);
-    event NewScholarship(string _urlMetadata);
-    event NewSubject(string _urlMetadata);
-    event NewTuition(string _urlMetadata);
+    event NewMission(address _contractAddress, string _urlMetadata);
+    event NewScholarship(address _contractAddress, string _urlMetadata);
+    event NewSubject(address _contractAddress, string _urlMetadata);
+    event NewTuition(address _contractAddress, string _urlMetadata);
     event TuitionLocked(address[] _listTuitions);
     event SubjectLocked(address[] _listSubjects);
     event MissionLocked(address[] _listMissions);
@@ -168,7 +168,7 @@ contract ManagerPool is Ownable {
         );
         IMissionContract(missionContract).start();
         rewardDistributor.addDistributorsAddress(missionContract);
-        emit NewMission(_urlMetadata);
+        emit NewMission(missionContract, _urlMetadata);
     }
 
     function createNewSubject(
@@ -200,7 +200,7 @@ contract ManagerPool is Ownable {
         // ISubjectContract(subjectContract).setScoreColumn(qt, gk, th, ck);
         ISubjectContract(subjectContract).start();
         // rewardDistributor.addDistributorsAddress(subjectContract);
-        emit NewSubject(_urlMetadata);
+        emit NewSubject(subjectContract, _urlMetadata);
     }
 
     function createNewScholarship(
@@ -232,7 +232,7 @@ contract ManagerPool is Ownable {
         );
         IScholarshipContract(scholarshipContract).start();
         rewardDistributor.addDistributorsAddress(scholarshipContract);
-        emit NewScholarship(_urlMetadata);
+        emit NewScholarship(scholarshipContract, _urlMetadata);
     }
 
     function createNewTuition(
@@ -258,7 +258,7 @@ contract ManagerPool is Ownable {
         );
         ITuitionContract(tuitionContract).start();
         rewardDistributor.addDistributorsAddress(tuitionContract);
-        emit NewTuition(_urlMetadata);
+        emit NewTuition(tuitionContract, _urlMetadata);
     }
 
     function close(address pool) external onlyRoleAdmin {

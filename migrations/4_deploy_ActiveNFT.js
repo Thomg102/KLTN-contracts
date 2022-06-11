@@ -1,6 +1,6 @@
 /** @format */
 
-const ActiveNFT = artifacts.require("ActiveNFT");
+const ActiveNFT = artifacts.require("ActivateNFT");
 const fs = require("fs");
 const path = require("path");
 const configFile = "../config/config.json";
@@ -8,7 +8,7 @@ const config = require(configFile);
 
 module.exports = async (deployer, network, accounts) => {
 	console.log();
-	console.log("Deploying ActiveNFT ...");
+	console.log("Deploying ActivateNFT ...");
 	await deployer.deploy(ActiveNFT, config.ACCESS_CONTROLL_ADDRESS, config.UIT_NFT_TOKEN_ADDRESS);
 	const ActiveNFTInstance = await ActiveNFT.deployed();
 
