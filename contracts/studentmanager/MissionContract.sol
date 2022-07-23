@@ -1,13 +1,15 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./interfaces/IMissionContract.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
 
-contract MissionContract is IMissionContract {
-    using SafeERC20 for IERC20;
-    address public immutable owner;
+contract MissionContract is IMissionContract, Initializable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    address public owner;
     Mission public mission;
     Status public status = Status.Lock;
 
@@ -51,11 +53,25 @@ contract MissionContract is IMissionContract {
         _;
     }
 
-    constructor(
+   constructor(
         address _owner,
         address _accessControll,
         address _rewardDistributor
     ) {
+        owner = _owner;
+        accessControll = IAccessControl(_accessControll);
+        rewardDistributor = IRewardDistributor(_rewardDistributor);
+    }
+
+    function initialize(
+        address _owner,
+        address _accessControll,
+        address _rewardDistributor
+    ) public initializer{
+        require(
+            owner == address(0) 
+            && address(accessControll) == address(0) 
+            && address(rewardDistributor) == address(0), "Initializable: contract is already initialized");
         owner = _owner;
         accessControll = IAccessControl(_accessControll);
         rewardDistributor = IRewardDistributor(_rewardDistributor);
@@ -73,8 +89,8 @@ contract MissionContract is IMissionContract {
         uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
         require(_award > 0, "MC: Award should greater than Zero");
+        if (block.timestamp > _startTime) _startTime = block.timestamp;
         require(
-            block.timestamp < _startTime &&
                 _startTime < _endTimeToRegister &&
                 _endTimeToRegister < _endTime &&
                 _endTime < _endTimeToConfirm,

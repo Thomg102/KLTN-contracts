@@ -239,6 +239,7 @@ contract ManagerPool is Ownable {
         string memory _urlMetadata,
         string memory _tuitionId,
         uint256 _feeByToken,
+        uint256 _feeByCurency,
         uint256 _startTime,
         uint256 _endTime
     ) external onlyRoleAdmin {
@@ -253,6 +254,7 @@ contract ManagerPool is Ownable {
             _tuitionId,
             _urlMetadata,
             _feeByToken,
+            _feeByCurency,
             _startTime,
             _endTime
         );
@@ -275,6 +277,7 @@ contract ManagerPool is Ownable {
         for (uint i = 0; i < _listTuitions.length; i++) {
             require(existed[_listTuitions[i]]);
             ITuitionContract(_listTuitions[i]).lock();
+             _removeDistributor(_listTuitions[i]);
         }
         emit TuitionLocked(_listTuitions);
     }
@@ -291,6 +294,7 @@ contract ManagerPool is Ownable {
         for (uint i = 0; i < _listScholarships.length; i++) {
             require(existed[_listScholarships[i]]);
             IScholarshipContract(_listScholarships[i]).lock();
+            _removeDistributor(_listScholarships[i]);
         }
         emit ScholarshipLocked(_listScholarships);
     }
@@ -299,6 +303,7 @@ contract ManagerPool is Ownable {
         for (uint i = 0; i < _listMissions.length; i++) {
             require(existed[_listMissions[i]]);
             IMissionContract(_listMissions[i]).lock();
+            _removeDistributor(_listMissions[i]);
         }
         emit MissionLocked(_listMissions);
     }

@@ -1,9 +1,6 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 interface ITuitionContract {
     struct Tuition {
         string Id;
@@ -34,6 +31,7 @@ interface ITuitionContract {
         string memory _tuitionId,
         string memory _urlMetadata,
         uint256 feeByToken,
+        uint256 _feeByCurency,
         uint256 _startTime,
         uint256 _endTime
     ) external;
@@ -48,7 +46,7 @@ interface ITuitionContract {
 
     function paymentByToken() external;
 
-    function paymentByCurrency() external;
+    function paymentByCurrency(address _studentAddress) external;
 
     function close() external;
 

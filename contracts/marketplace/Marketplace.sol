@@ -139,6 +139,7 @@ contract Marketplace is
 
         uint256 amount = sale.amount;
         sale.isActive = false;
+        sale.amount = 0;
 
         IERC1155(UITNFT).safeTransferFrom(
             address(this),

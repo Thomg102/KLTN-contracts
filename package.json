@@ -9,8 +9,22 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"compile": "truffle compile",
-		"migrate": "truffle migrate --network binance_test --compile-none",
-		"verify": "truffle run verify --network binance_test UITToken UITNFTToken AccessControl ActiveNFT Marketplace Factory RewardDistributor ManagerPool"
+		"migrate:binance_test": "truffle migrate --network binance_test --compile-none",
+		"migrate:binance_mainnet": "truffle migrate --network binance_mainnet --compile-none",
+		"migrate:kovan": "truffle migrate --network kovan --compile-none",
+		"migrate:ethereum": "truffle migrate --network ethereum --compile-none",
+		"verify:binance_test": "truffle run verify --network binance_test UITToken UITNFTToken AccessControl ActiveNFT Marketplace Factory RewardDistributor ManagerPool",
+		"verify:binance_mainnet": "truffle run verify --network binance_mainnet UITToken UITNFTToken AccessControl ActiveNFT Marketplace Factory RewardDistributor ManagerPool",
+		"verify:kovan": "truffle run verify --network kovan UITToken UITNFTToken AccessControl ActiveNFT Marketplace Factory RewardDistributor ManagerPool",
+		"verify:ethereum": "truffle run verify --network ethereum UITToken UITNFTToken AccessControl ActiveNFT Marketplace Factory RewardDistributor ManagerPool",
+		"migrate-upgradeable:binance_test": "truffle migrate --network binance_test --compile-none",
+		"verify-upgradeable:binance_test": "truffle run verify --network binance_test UITToken UITNFTToken AccessControl ActivateNFT Marketplace FactoryProxy MissionContract ScholarshipContract SubjectContract TuitionContract RewardDistributor ManagerPool",
+		"migrate-upgradeable:binance_mainnet": "truffle migrate --network binance_mainnet --compile-none",
+		"verify-upgradeable:binance_mainnet": "truffle run verify --network binance_mainnet UITToken UITNFTToken AccessControl ActivateNFT Marketplace FactoryProxy MissionContract ScholarshipContract SubjectContract TuitionContract RewardDistributor ManagerPool",
+		"migrate-upgradeable:kovan": "truffle migrate --network kovan --compile-none",
+		"verify-upgradeable:kovan": "truffle run verify --network kovan UITToken UITNFTToken AccessControl ActivateNFT Marketplace FactoryProxy MissionContract ScholarshipContract SubjectContract TuitionContract RewardDistributor ManagerPool",
+		"migrate-upgradeable:ethereum": "truffle migrate --network ethereum --compile-none",
+		"verify-upgradeable:ethereum": "truffle run verify --network ethereum UITToken UITNFTToken AccessControl ActivateNFT Marketplace FactoryProxy MissionContract ScholarshipContract SubjectContract TuitionContract RewardDistributor ManagerPool"
 	},
 	"repository": {
 		"type": "git",

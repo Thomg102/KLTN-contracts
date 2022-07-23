@@ -1,16 +1,17 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./interfaces/ISubjectContract.sol";
 import "./interfaces/IAccessControl.sol";
 
-contract SubjectContract is ISubjectContract {
-    using SafeERC20 for IERC20;
-    address public immutable owner;
+contract SubjectContract is ISubjectContract, Initializable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    address public owner;
     Subject public subject;
     Status public status = Status.Lock;
 
-    address public UITToken;
     IAccessControl public accessControll;
 
     address[] public student;
@@ -53,7 +54,21 @@ contract SubjectContract is ISubjectContract {
         _;
     }
 
-    constructor(address _owner, address _accessControll) {
+    constructor(
+        address _owner,
+        address _accessControll
+    ) {
+        owner = _owner;
+        accessControll = IAccessControl(_accessControll);
+    }
+
+    function initialize(
+        address _owner,
+        address _accessControll
+    ) public initializer{
+        require(
+            owner == address(0) 
+            && address(accessControll) == address(0), "Initializable: contract is already initialized");
         owner = _owner;
         accessControll = IAccessControl(_accessControll);
     }
@@ -68,8 +83,8 @@ contract SubjectContract is ISubjectContract {
         uint256 _endTime,
         uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
+        if (block.timestamp > _startTime) _startTime = block.timestamp;
         require(
-            block.timestamp < _startTime &&
                 _startTime < _endTimeToRegister &&
                 _endTimeToRegister < _endTime &&
                 _endTime < _endTimeToConfirm,

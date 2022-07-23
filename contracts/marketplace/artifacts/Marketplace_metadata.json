@@ -21,6 +21,16 @@
 						"internalType": "address",
 						"name": "_UITNFT",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_rewardDistributor",
+						"type": "address"
+					},
+					{
+						"internalType": "contract IActivateNFT",
+						"name": "_activateNFT",
+						"type": "address"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -54,6 +64,12 @@
 			{
 				"anonymous": false,
 				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "hash",
+						"type": "string"
+					},
 					{
 						"indexed": true,
 						"internalType": "uint256",
@@ -317,6 +333,32 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "activateNFT",
+				"outputs": [
+					{
+						"internalType": "contract IActivateNFT",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "_activateIds",
+						"type": "uint256[]"
+					}
+				],
+				"name": "activateNFTByAdmin",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -332,14 +374,22 @@
 						"internalType": "uint256",
 						"name": "_amount",
 						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "_oneItemBuyPrice",
-						"type": "uint256"
 					}
 				],
 				"name": "buy",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "_activateIds",
+						"type": "uint256[]"
+					}
+				],
+				"name": "cancelRequestActivateNFT",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -580,12 +630,56 @@
 			{
 				"inputs": [
 					{
+						"internalType": "uint256",
+						"name": "_itemId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "requestActivateNFT",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "rewardDistributor",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "address",
 						"name": "_accessControl",
 						"type": "address"
 					}
 				],
 				"name": "setAccessControl",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "contract IActivateNFT",
+						"name": "_activateNFT",
+						"type": "address"
+					}
+				],
+				"name": "setActivateNFT",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -669,12 +763,11 @@
 		"devdoc": {
 			"kind": "dev",
 			"methods": {
-				"buy(uint256,address,uint256,uint256)": {
+				"buy(uint256,address,uint256)": {
 					"details": "Buyer buy amount of items is being on sale.",
 					"params": {
 						"_amount": "amount of item want to buy",
 						"_itemId": "id of item want to buy",
-						"_oneItemBuyPrice": "price of one item want to buy",
 						"_seller": "seller address"
 					}
 				},
@@ -741,7 +834,7 @@
 		"userdoc": {
 			"kind": "user",
 			"methods": {
-				"buy(uint256,address,uint256,uint256)": {
+				"buy(uint256,address,uint256)": {
 					"notice": "USER"
 				},
 				"createAndListNFT((string,bool),uint256,uint256)": {
@@ -891,6 +984,14 @@
 				"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
 			]
 		},
+		"contracts/activateNFT/interfaces/IActivateNFT.sol": {
+			"keccak256": "0xb9b834017958c52331680cbe45b6943bc3dd59810aabb1b1aacf569ed5dfabb1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4d94c60211b7cda7c8774eb9f3519eccdc7651e2bb2c20f07ffd36ddf99dcd6a",
+				"dweb:/ipfs/QmaXBbhQt3TCCDB1SJcH7zJmdnRABuq2bjKqAGXWWkdv46"
+			]
+		},
 		"contracts/common/interfaces/ISharedStruct.sol": {
 			"keccak256": "0x029d61ce531775ad00c833b8a898b523e081ef1093d478a6081c226667b5abee",
 			"license": "MIT",
@@ -900,19 +1001,19 @@
 			]
 		},
 		"contracts/marketplace/Marketplace.sol": {
-			"keccak256": "0xb861d154d3bddc6a7e3082974767e33700916d350bd536c2b7f0189459cc4903",
+			"keccak256": "0x3a133448e818916d1dc81068068fcdaa299280c9fe194766e2e7f17a97f6466b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://5bfb57d375d533d27d052e8eb92bbd13372244f7260417a20c3842d1f92ebcd7",
-				"dweb:/ipfs/QmbZPW2eEkY9e7qYgnFpdNm41nS5mcVBewLqD164xhhf8x"
+				"bzz-raw://ae997294f68efc5ada677827186e80ea07d3ea616d7ea1e68ccb44334b5adf9d",
+				"dweb:/ipfs/QmQ8Cfo2oSf2DBBEWyu16C2NpEnH17xKM6AeLjzSPNtd1q"
 			]
 		},
 		"contracts/marketplace/interfaces/IMarketplace.sol": {
-			"keccak256": "0x10c8f9e545356b2f08764a6560a449d71f0830216a3fa25b1ebde56b1c972043",
+			"keccak256": "0x533067415fdd076c6d7d50bd5579db166007ced54ec0c5a17624e21e6227f684",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://fe0d89bdd2ace76bf5100926c59257511ad39912676c5984c26e75d65aad69bf",
-				"dweb:/ipfs/Qmar7cbfCCbHUhYpCT6YKKWXzzETesWBRFamTbHmkHrL4c"
+				"bzz-raw://dd2cb022621f34dbbb7f7cacc5e91e1ac826863c3ce8274dd06fa5d9a390ecf8",
+				"dweb:/ipfs/QmRgQZadBd2w1a5bczgHeAqhzzziqbAfakFdP3w14nHT2R"
 			]
 		},
 		"contracts/studentmanager/interfaces/IAccessControl.sol": {

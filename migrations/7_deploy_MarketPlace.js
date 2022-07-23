@@ -29,10 +29,9 @@ module.exports = async (deployer, network, accounts) => {
 			
 		}
 		try {
-			await instance.addOperator(config.ACTIVE_NFT_ADDRESS, { from: accounts[0] });
-			
+			await instance.addOperator(config.ACTIVE_NFT_ADDRESS, { from: accounts[0] });			
 		} catch {
-		
+		}
 	});
 
 	config.MARKETPLACE_ADDRESS = MarketplaceInstance.address;

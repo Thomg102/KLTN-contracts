@@ -1,13 +1,15 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./interfaces/IScholarshipContract.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
 
-contract ScholarshipContract is IScholarshipContract {
-    using SafeERC20 for IERC20;
-    address public immutable owner;
+contract ScholarshipContract is IScholarshipContract, Initializable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    address public owner;
     Scholarship public scholarship;
     Status public status = Status.Lock;
 
@@ -70,6 +72,20 @@ contract ScholarshipContract is IScholarshipContract {
         rewardDistributor = IRewardDistributor(_rewardDistributor);
     }
 
+    function initialize(
+        address _owner,
+        address _accessControll,
+        address _rewardDistributor
+    ) public initializer{
+        require(
+            owner == address(0) 
+            && address(accessControll) == address(0) 
+            && address(rewardDistributor) == address(0), "Initializable: contract is already initialized");
+        owner = _owner;
+        accessControll = IAccessControl(_accessControll);
+        rewardDistributor = IRewardDistributor(_rewardDistributor);
+    }
+
     function setBasicForScholarship(
         string memory _scholarshipId,
         string memory _urlMetadata,
@@ -81,8 +97,8 @@ contract ScholarshipContract is IScholarshipContract {
         uint256 _endTimeToConfirm
     ) external override onlyOwner onlyLock {
         require(_award > 0, "SC: Award should greater than Zero");
+        if (block.timestamp > _startTime) _startTime = block.timestamp;
         require(
-            block.timestamp < _startTime &&
                 _startTime < _endTimeToRegister &&
                 _endTimeToRegister < _endTime &&
                 _endTime < _endTimeToConfirm,

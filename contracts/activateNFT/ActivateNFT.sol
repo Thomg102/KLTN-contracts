@@ -42,6 +42,7 @@ contract ActivateNFT is
             "ActivateNFT: UITNFToken must not be address 0"
         );
         UITNFT = _UITNFT;
+        accessControl = _accessControl;
     }
 
     modifier onlyAdmin() {
@@ -134,7 +135,7 @@ contract ActivateNFT is
         nonReentrant
     {
         for (uint i = 0; i < _activateIds.length; i++){
-            ActivateInfo storage activateInfo = activateInfoList[_activateIds[i]];
+            ActivateInfo storage activateInfo = activateInfoList[_activateIds[i]-1];
             require(
                 activateInfo.ownerOfRequest == msg.sender,
                 "ActivateNFT: Not owner of request"
@@ -168,18 +169,17 @@ contract ActivateNFT is
     function activateNFT(uint[] memory _activateIds)
         external
         override
-        onlyMarketplace
         whenNotPaused
         nonReentrant
     {
         for (uint i = 0; i < _activateIds.length; i++){
-            ActivateInfo storage activateInfo = activateInfoList[_activateIds[i]];
+            ActivateInfo storage activateInfo = activateInfoList[_activateIds[i] - 1];
             require(
                 activateInfo.isRequested,
                 "ActivateNFT: activateInfo is not requested"
             );
             require(
-                activateInfo.isActivate,
+                !activateInfo.isActivate,
                 "ActivateNFT: activateInfo is already activated"
             );
             uint itemId = activateInfo.itemId;

@@ -5,10 +5,12 @@ import "./interfaces/ITuitionContract.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
 
-contract TuitionContract is ITuitionContract {
-    using SafeERC20 for IERC20;
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+contract TuitionContract is ITuitionContract, Initializable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    address public immutable owner;
+    address public owner;
     Tuition public tuition;
     Status public status = Status.Lock;
 
@@ -36,9 +38,9 @@ contract TuitionContract is ITuitionContract {
         _;
     }
 
-    modifier onlyRoleAdmin() {
+    modifier onlyRoleLecturer() {
         require(
-            accessControll.hasRole(keccak256("ADMIN"), msg.sender),
+            accessControll.hasRole(keccak256("LECTURER"), msg.sender),
             "MC: Only Lecturer"
         );
         _;
@@ -56,7 +58,21 @@ contract TuitionContract is ITuitionContract {
         address _owner,
         address _accessControll,
         address _rewardDistributor
-    ) {
+    ){
+        owner = _owner;
+        accessControll = IAccessControl(_accessControll);
+        rewardDistributor = _rewardDistributor;
+    }
+
+    function initialize(
+        address _owner,
+        address _accessControll,
+        address _rewardDistributor
+    ) public initializer{
+        require(
+            owner == address(0) 
+            && address(accessControll) == address(0) 
+            && rewardDistributor == address(0), "Initializable: contract is already initialized");
         owner = _owner;
         accessControll = IAccessControl(_accessControll);
         rewardDistributor = _rewardDistributor;
@@ -66,15 +82,17 @@ contract TuitionContract is ITuitionContract {
         string memory _tuitionId,
         string memory _urlMetadata,
         uint256 _feeByToken,
+        uint256 _feeByCurency,
         uint256 _startTime,
         uint256 _endTime
     ) external override onlyOwner onlyLock {
         require(_feeByToken > 0, "MC: Award should greater than Zero");
+        if (block.timestamp > _startTime) _startTime = block.timestamp;
         require(
-            block.timestamp < _startTime && _startTime < _endTime,
+             _startTime < _endTime,
             "MC: Time is invalid"
         );
-
+        _feeByCurency;
         tuition = Tuition(
             _tuitionId,
             _urlMetadata,
@@ -95,7 +113,7 @@ contract TuitionContract is ITuitionContract {
     function addStudentToTuition(address[] calldata _students)
         external
         override
-        onlyRoleAdmin
+        onlyRoleLecturer
         onlyOpen
     {
         for (uint256 i = 0; i < _students.length; i++) {
@@ -115,12 +133,12 @@ contract TuitionContract is ITuitionContract {
     function removeStudentFromTuition(address[] calldata _students)
         external
         override
-        onlyRoleAdmin
+        onlyRoleLecturer
     {
         for (uint256 i = 0; i < _students.length; i++) {
             require(participantToTrue[_students[i]], "Error when remove");
             require(
-                        completedAddress[_students[i]] = false,
+                        completedAddress[_students[i]] = true,
                         "This student have completed"
                     );
             uint256 index = participantToIndex[_students[i]];
@@ -137,7 +155,7 @@ contract TuitionContract is ITuitionContract {
         require(!completedAddress[msg.sender], "TC: You paid tuition");
         address UITToken = IRewardDistributor(rewardDistributor)
             .getUITTokenAddress();
-        IERC20(UITToken).safeTransferFrom(
+        IERC20Upgradeable(UITToken).safeTransferFrom(
             msg.sender,
             rewardDistributor,
             tuition.feeByToken
@@ -146,11 +164,12 @@ contract TuitionContract is ITuitionContract {
         emit Payment(msg.sender, block.timestamp, PaymentMethod.Token);
     }
 
-    function paymentByCurrency() external override onlyRoleAdmin {
-        require(participantToTrue[msg.sender], "TC: You are not in list");
-        require(!completedAddress[msg.sender], "TC: You paid tuition");
-        completedAddress[msg.sender] = true;
-        emit Payment(msg.sender, block.timestamp, PaymentMethod.Currency);
+    function paymentByCurrency(address _studentAddress) external override onlyRoleStudent{
+        require(msg.sender == _studentAddress, "You are not allowed");
+        require(participantToTrue[_studentAddress], "TC: You are not in list");
+        require(!completedAddress[_studentAddress], "TC: You paid tuition");
+        completedAddress[_studentAddress] = true;
+        emit Payment(_studentAddress, block.timestamp, PaymentMethod.Currency);
     }
 
     function close() external override onlyOwner onlyOpen {

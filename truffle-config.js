@@ -23,7 +23,7 @@ module.exports = {
 			network_id: "*", // Match any network id,
 			gasPrice: 1000000000, // 8 Gwei
 		},
-		ethereum_mainnet: {
+		ethereum: {
 			provider: () => new HDWalletProvider(MNEMONIC, MAINNET_ETHEREUM_NODE),
 			network_id: "1",
 			gas: 5500000,
@@ -35,7 +35,7 @@ module.exports = {
 		},
 		kovan: {
 			provider: () => new HDWalletProvider(MNEMONIC, TESTNET_ETHEREUM_NODE),
-			network_id: 42,
+			network_id: 4,
 			gas: 5500000,
 			confirmations: 2,
 			timeoutBlocks: 50000,
@@ -52,16 +52,16 @@ module.exports = {
 			timeoutBlocks: 50000,
 			websocket: true,
 		},
-		// binance_mainnet: {
-		// 	provider: () => new HDWalletProvider(MNEMONIC, MAINNET_BSC_NODE),
-		// 	network_id: "56",
-		// 	gas: 5500000,
-		// 	confirmations: 2,
-		// 	timeoutBlocks: 50000,
-		// 	skipDryRun: true,
-		// 	networkCheckTimeout: 999999,
-		// 	websocket: true,
-		// },
+		binance_mainnet: {
+			provider: () => new HDWalletProvider(MNEMONIC, MAINNET_BSC_NODE),
+			network_id: "56",
+			gas: 5500000,
+			confirmations: 2,
+			timeoutBlocks: 50000,
+			skipDryRun: true,
+			networkCheckTimeout: 999999,
+			websocket: true,
+		},
 	},
 	compilers: {
 		solc: {
