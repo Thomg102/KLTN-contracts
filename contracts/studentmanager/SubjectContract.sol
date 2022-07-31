@@ -16,11 +16,11 @@ contract SubjectContract is ISubjectContract, Initializable {
 
     address[] public student;
     mapping(address => Student) public addressToStudent;
-    // mapping(address => mapping(ScoreColumn => uint256)) score;
+    mapping(address => mapping(ScoreColumn => uint256)) public score;
     uint256 public amount;
     mapping(address => bool) public completedAddress;
 
-    // mapping(ScoreColumn => uint256) public rate;
+    mapping(ScoreColumn => uint256) public rate;
     // ti le diem, giua ki, cuoi ki, qua trinh
 
     modifier onlyLock() {
@@ -103,18 +103,18 @@ contract SubjectContract is ISubjectContract, Initializable {
         );
     }
 
-    // function setScoreColumn(
-    //     uint256 QT,
-    //     uint256 GK,
-    //     uint256 TH,
-    //     uint256 CK
-    // ) external override onlyOwner {
-    //     require(QT + GK + TH + CK == 10000, "SC: rate invalid");
-    //     rate[ScoreColumn.QT] = QT;
-    //     rate[ScoreColumn.GK] = GK;
-    //     rate[ScoreColumn.TH] = TH;
-    //     rate[ScoreColumn.CK] = CK;
-    // }
+    function setScoreColumn(
+        uint256 QT,
+        uint256 GK,
+        uint256 TH,
+        uint256 CK
+    ) external override {
+        require(QT + GK + TH + CK == 10000, "SC: rate invalid");
+        rate[ScoreColumn.QT] = QT;
+        rate[ScoreColumn.GK] = GK;
+        rate[ScoreColumn.TH] = TH;
+        rate[ScoreColumn.CK] = CK;
+    }
 
     function start() external override onlyOwner onlyLock {
         status = Status.Open;
@@ -149,9 +149,8 @@ contract SubjectContract is ISubjectContract, Initializable {
 
     function _register(address _student) private {
         Student storage instance = addressToStudent[_student];
-        require(!instance.participantToTrue, "SC: register error");
-
-        amount++;
+        if (!instance.participantToTrue) {
+            amount++;
         if (instance.studentAddress != address(0)) {
             instance.participantToTrue = true;
         } else {
@@ -165,6 +164,7 @@ contract SubjectContract is ISubjectContract, Initializable {
 
         require(amount <= subject.maxEntrant, "Reach out limit");
         emit Register(_student);
+        } 
     }
 
     function cancelRegister() external override onlyOpen onlyRoleStudent {
@@ -175,24 +175,24 @@ contract SubjectContract is ISubjectContract, Initializable {
         emit CancelRegister(msg.sender);
     }
 
+    struct Score{
+        uint256[] score;
+    }
+
     function confirmCompletedAddress(
-        address[] calldata _students // uint256[] calldata _score,// ScoreColumn _column
-    ) external override onlyOpen onlyRoleLecturer {
-        require(
-            block.timestamp > subject.endTime &&
-                block.timestamp < subject.endTimeToConfirm
-        );
-        // require(_student.length == _score.length);
+        address[] calldata _students, Score[] memory _score
+    ) external onlyOpen onlyRoleLecturer {
+        require(block.timestamp < subject.endTimeToConfirm);
+        require(_students.length == _score.length);
         for (uint256 i = 0; i < _students.length; i++) {
-            Student memory instance = addressToStudent[_students[i]];
-            require(
-                instance.participantToTrue &&
-                    instance.studentAddress == _students[i],
-                "SC: cancel error"
-            );
-            completedAddress[_students[i]] = true;
-            // require(_score[i] <= 10);
-            // score[_student[i]][_column] = _score[i];
+            _register(_students[i]);
+            score[_students[i]][ScoreColumn.QT] = _score[i].score[0];
+            score[_students[i]][ScoreColumn.GK] = _score[i].score[1];
+            score[_students[i]][ScoreColumn.TH] = _score[i].score[2];
+            score[_students[i]][ScoreColumn.CK] = _score[i].score[3];
+            uint256 finalScore = getFinalScore(_students[i]);
+            if (finalScore >= 50000)
+                completedAddress[_students[i]] = true;
         }
         emit Confirm(_students.length, block.timestamp);
     }
@@ -201,6 +201,7 @@ contract SubjectContract is ISubjectContract, Initializable {
         external
         onlyRoleLecturer
         onlyOpen
+        override
     {
         require(
             block.timestamp > subject.endTime &&
@@ -260,15 +261,40 @@ contract SubjectContract is ISubjectContract, Initializable {
         return _student;
     }
 
-    // function getFinalScore(address _student) public view returns (uint256) {
-    //     return
-    //         (score[_student][ScoreColumn.QT] *
-    //             rate[ScoreColumn.QT] +
-    //             score[_student][ScoreColumn.GK] *
-    //             rate[ScoreColumn.GK] +
-    //             score[_student][ScoreColumn.TH] *
-    //             rate[ScoreColumn.TH] +
-    //             score[_student][ScoreColumn.CK] *
-    //             rate[ScoreColumn.CK]) / 10000;
-    // }
+    function getFinalScore(address _student) public view returns (uint256) {
+        return
+            (score[_student][ScoreColumn.QT] *
+                rate[ScoreColumn.QT] +
+                score[_student][ScoreColumn.GK] *
+                rate[ScoreColumn.GK] +
+                score[_student][ScoreColumn.TH] *
+                rate[ScoreColumn.TH] +
+                score[_student][ScoreColumn.CK] *
+                rate[ScoreColumn.CK])/10000;
+    }
+
+    function getScore(address _student) public view returns(uint256[] memory) {
+        uint256[] memory list = new uint256[](5);
+        list[0]=score[_student][ScoreColumn.QT];
+        list[1]=score[_student][ScoreColumn.GK];
+        list[2]=score[_student][ScoreColumn.TH];
+        list[3]=score[_student][ScoreColumn.CK];
+        list[4]=getFinalScore(_student);
+        return list;
+    }
+
+    function getScoreList() public view returns(address[] memory, Score[] memory) {
+        address[] memory list = getParticipantList();
+        Score[] memory scoreList = new Score[](list.length);
+        for (uint256 i=0; i< list.length; i++) {
+            uint256[] memory _score = new uint256[](4);
+            _score[0]=score[list[i]][ScoreColumn.QT];
+            _score[1]=score[list[i]][ScoreColumn.GK];
+            _score[2]=score[list[i]][ScoreColumn.TH];
+            _score[3]=score[list[i]][ScoreColumn.CK];
+            _score[4]=getFinalScore(list[i]);
+            scoreList[i].score = _score;
+        }
+        return (list, scoreList);
+    }
 }

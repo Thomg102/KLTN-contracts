@@ -13,12 +13,13 @@ interface ISubjectContract {
         uint256 endTimeToConfirm;
     }
 
-    // enum ScoreColumn {
-    //     QT,
-    //     GK,
-    //     TH,
-    //     CK
-    // }
+    enum ScoreColumn {
+        QT,
+        GK,
+        TH,
+        CK,
+        All
+    }
 
     struct Student {
         address studentAddress;
@@ -53,12 +54,12 @@ interface ISubjectContract {
 
     function lock() external;
 
-    // function setScoreColumn(
-    //     uint256 QT,
-    //     uint256 GK,
-    //     uint256 TH,
-    //     uint256 CK
-    // ) external;
+    function setScoreColumn(
+        uint256 QT,
+        uint256 GK,
+        uint256 TH,
+        uint256 CK
+    ) external;
 
     function addStudentToSubject(address[] memory _students) external;
 
@@ -66,11 +67,11 @@ interface ISubjectContract {
 
     function cancelRegister() external;
 
-    function confirmCompletedAddress(
-        address[] calldata _student
-        // uint256[] calldata _score,
-        // ScoreColumn _column
-    ) external;
+    // function confirmCompletedAddress(
+    //     address[] calldata _student,
+    //     uint256[] calldata _score,
+    //     ScoreColumn _column
+    // ) external;
 
     function unConfirmCompletedAddress(address[] calldata _students) external;
 

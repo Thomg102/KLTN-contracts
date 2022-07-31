@@ -171,6 +171,12 @@ contract ManagerPool is Ownable {
         emit NewMission(missionContract, _urlMetadata);
     }
 
+    struct ColumnRate {
+        uint256 qt;
+        uint256 gk;
+        uint256 th;
+        uint256 ck;
+    }
     function createNewSubject(
         string memory _urlMetadata,
         string memory _subjectId,
@@ -179,7 +185,8 @@ contract ManagerPool is Ownable {
         uint256 _startTime,
         uint256 _endTimeToRegister,
         uint256 _endTime,
-        uint256 _endTimeToConfirm
+        uint256 _endTimeToConfirm,
+        ColumnRate memory _rate
     ) external onlyRoleAdmin {
         address subjectContract = factory.createNewSubject(
             address(this),
@@ -197,7 +204,7 @@ contract ManagerPool is Ownable {
             _endTime,
             _endTimeToConfirm
         );
-        // ISubjectContract(subjectContract).setScoreColumn(qt, gk, th, ck);
+        ISubjectContract(subjectContract).setScoreColumn(_rate.qt, _rate.gk, _rate.th, _rate.ck);
         ISubjectContract(subjectContract).start();
         // rewardDistributor.addDistributorsAddress(subjectContract);
         emit NewSubject(subjectContract, _urlMetadata);
