@@ -29,6 +29,11 @@ interface IMissionContract is IManagerPool {
     event Confirm(uint256 studentsAmount, uint256 timestamp);
     event UnConfirm(uint256 studentsAmount, uint256 timestamp);
     event Close(uint256 timestamp);
+    event ItemReceived(
+        uint256 indexed itemId,
+        address student,
+        uint256 amount
+    );
 
     function setBasicForMission(
         string memory _missionId,

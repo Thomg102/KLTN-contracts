@@ -215,6 +215,7 @@ contract MissionContract is IMissionContract, Initializable {
                     rewardDistributor.distributeReward(student[i], mission.award);
                 else if (mission.rewardType == RewardType.Item){
                     IUITNFTToken(UITNFT).mint(mission.nftId, student[i], 1);
+                    emit ItemReceived(mission.nftId, student[i], 1);
                 }
         }
         emit Close(block.timestamp);
