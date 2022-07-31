@@ -11,8 +11,9 @@ import "./interfaces/IGeneralContract.sol";
 import "./interfaces/IFactory.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
+import "./interfaces/IManagerPool.sol";
 
-contract ManagerPool is Ownable {
+contract ManagerPool is Ownable, IManagerPool {
     using Counters for Counters.Counter;
 
     struct Object {
@@ -39,14 +40,18 @@ contract ManagerPool is Ownable {
     mapping(address => string) public studentInfo;
     mapping(address => string) public lecturerInfo;
 
+    address public UITNFT;
+
     constructor(
         address _factory,
         address _accessControll,
-        address _rewardDistributor
+        address _rewardDistributor,
+        address _UITNFT
     ) {
         factory = IFactory(_factory);
         accessControll = IAccessControl(_accessControll);
         rewardDistributor = IRewardDistributor(_rewardDistributor);
+        UITNFT = _UITNFT;
     }
 
     modifier onlyRoleAdmin() {
@@ -146,13 +151,16 @@ contract ManagerPool is Ownable {
         uint256 _startTime,
         uint256 _endTimeToRegister,
         uint256 _endTime,
-        uint256 _endTimeToConfirm
+        uint256 _endTimeToConfirm,
+        RewardType _rewardType,
+        uint256 _nftId
     ) external onlyRoleAdmin {
         address missionContract = factory.createNewMission(
             address(this),
             address(accessControll),
             address(rewardDistributor)
         );
+        IMissionContract(missionContract).setUITNFTAddress(UITNFT);
         pools.push(Object(missionContract, Type.Mission));
         existed[missionContract] = true;
         IMissionContract(missionContract).setBasicForMission(
@@ -164,10 +172,13 @@ contract ManagerPool is Ownable {
             _startTime,
             _endTimeToRegister,
             _endTime,
-            _endTimeToConfirm
+            _endTimeToConfirm,
+            _rewardType,
+            _nftId
         );
         IMissionContract(missionContract).start();
-        rewardDistributor.addDistributorsAddress(missionContract);
+        if (_rewardType == RewardType.Token)
+            rewardDistributor.addDistributorsAddress(missionContract);
         emit NewMission(missionContract, _urlMetadata);
     }
 

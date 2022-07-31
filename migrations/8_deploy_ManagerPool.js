@@ -12,7 +12,7 @@ const config = require(configFile);
 module.exports = async (deployer, network, accounts) => {
 	console.log();
 	console.log("Deploying ManagerPool ...");
-	await deployer.deploy(ManagerPool, config.FACTORY_ADDRESS, config.ACCESS_CONTROLL_ADDRESS, config.REWARD_DISTRIBUTOR_ADDRESS);
+	await deployer.deploy(ManagerPool, config.FACTORY_ADDRESS, config.ACCESS_CONTROLL_ADDRESS, config.REWARD_DISTRIBUTOR_ADDRESS, config.UIT_NFT_TOKEN_ADDRESS);
 	const ManagerPoolInstance = await ManagerPool.deployed();
 
 	config.MANAGER_POOL_ADDRESS = ManagerPoolInstance.address;

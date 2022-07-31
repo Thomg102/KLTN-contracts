@@ -6,10 +6,12 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./interfaces/IMissionContract.sol";
 import "./interfaces/IAccessControl.sol";
 import "./interfaces/IRewardDistributor.sol";
+import "../token/interfaces/IUITNFTToken.sol";
 
 contract MissionContract is IMissionContract, Initializable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     address public owner;
+    address public UITNFT;
     Mission public mission;
     Status public status = Status.Lock;
 
@@ -86,7 +88,9 @@ contract MissionContract is IMissionContract, Initializable {
         uint256 _startTime,
         uint256 _endTimeToRegister,
         uint256 _endTime,
-        uint256 _endTimeToConfirm
+        uint256 _endTimeToConfirm,
+        RewardType _rewardType,
+        uint256 _nftId
     ) external override onlyOwner onlyLock {
         require(_award > 0, "MC: Award should greater than Zero");
         if (block.timestamp > _startTime) _startTime = block.timestamp;
@@ -106,7 +110,9 @@ contract MissionContract is IMissionContract, Initializable {
             _startTime,
             _endTimeToRegister,
             _endTime,
-            _endTimeToConfirm
+            _endTimeToConfirm,
+            _rewardType,
+            _nftId
         );
     }
 
@@ -205,9 +211,17 @@ contract MissionContract is IMissionContract, Initializable {
         address[] memory student = getParticipantListCompleted();
         for (uint256 i = 0; i < student.length; i++) {
             if (student[i] != address(0))
-                rewardDistributor.distributeReward(student[i], mission.award);
+                if (mission.rewardType == RewardType.Token)
+                    rewardDistributor.distributeReward(student[i], mission.award);
+                else if (mission.rewardType == RewardType.Item){
+                    IUITNFTToken(UITNFT).mint(mission.nftId, student[i], 1);
+                }
         }
         emit Close(block.timestamp);
+    }
+
+    function setUITNFTAddress(address _UITNFT) override external onlyOwner {
+        UITNFT = _UITNFT;
     }
 
     function isReadyToClose() external view onlyOpen returns (bool) {

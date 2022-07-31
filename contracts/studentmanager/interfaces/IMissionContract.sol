@@ -1,7 +1,8 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0;
+import "./IManagerPool.sol";
 
-interface IMissionContract {
+interface IMissionContract is IManagerPool {
     struct Mission {
         string Id;
         string urlMetadata;
@@ -12,6 +13,8 @@ interface IMissionContract {
         uint256 endTimeToRegister;
         uint256 endTime;
         uint256 endTimeToConfirm;
+        RewardType rewardType;
+        uint256 nftId;
     }
 
     enum Status {
@@ -36,7 +39,9 @@ interface IMissionContract {
         uint256 _startTime,
         uint256 _endTimeToRegister,
         uint256 _endTime,
-        uint256 _endTimeToConfirm
+        uint256 _endTimeToConfirm,
+        RewardType _rewardType,
+        uint256 _nftId
     ) external;
 
     function start() external;
@@ -59,4 +64,6 @@ interface IMissionContract {
         external
         view
         returns (address[] memory);
+
+    function setUITNFTAddress(address _UITNFT) external;
 }
